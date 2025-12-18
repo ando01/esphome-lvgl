@@ -19,8 +19,10 @@ time:
 script:
   - id: time_update
     then:
-      - lambda: |-
-          auto now = id(sntp_time).now();
-          static char time_str[6];
-          snprintf(time_str, sizeof(time_str), "%02d:%02d", now.hour, now.minute);
-          id(display_time).set_text(time_str);
+      - lvgl.label.update:
+          id: display_time
+          text: !lambda |-
+            auto now = id(sntp_time).now();
+            static char time_buf[17];
+            snprintf(time_buf, sizeof(time_buf), "%02d:%02d", now.hour, now.minute);
+            return std::string(time_buf);
