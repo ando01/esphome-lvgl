@@ -256,16 +256,16 @@ lvgl:
               - lvgl.page.show: blinds_page
 
         # =========================================================================
-        # BUTTON: More (Open Extra Controls Page)
+        # BUTTON: Experiment (Open Blank Page)
         # =========================================================================
         # WHAT THIS BUTTON DOES:
-        #   Navigates to the extra controls page.
+        #   Navigates to the experimental blank page.
         # =========================================================================
         - button: 
             height: $button_height_single
             width: $button_width
             checkable: false
-            id: more_nav_button
+            id: experiment_nav_button
             styles: control
             widgets:
               - label:
@@ -274,9 +274,9 @@ lvgl:
                   text: $application
               - label:
                   align: bottom_left
-                  text: "More"
+                  text: "Experiment"
             on_click:
-              - lvgl.page.show: more_page
+              - lvgl.page.show: experiment_page
 
 
         # =========================================================================
@@ -660,51 +660,6 @@ lvgl:
                     entity_id: cover.office_blind
                     position: "66"
 
-    - id: more_page
-      layout: 
-        type: flex
-        flex_flow: column_wrap
-      scrollbar_mode: "off"
-      scroll_dir: "hor"
-      width: 100%
-      bg_color: Black
-      bg_opa: cover
-      pad_top: 34
-      pad_bottom: 5
-      pad_left: 5
-      pad_right: 5
-
-      widgets:
-
-        # =========================================================================
-        # BUTTON: Back (Return to Main Page)
-        # =========================================================================
-        - button: 
-            height: $button_height_single
-            width: $button_width
-            checkable: false
-            id: more_back_button
-            styles: control
-            widgets:
-              - label:
-                  text_font: $icon_font
-                  align: top_left
-                  text: $chevron_left
-              - label:
-                  align: bottom_left
-                  text: "Back"
-            on_click:
-              - lvgl.page.show: main_page
-
-        # =========================================================================
-        # LABEL: Page Title
-        # =========================================================================
-        - label:
-            text: "More"
-            styles: roboto15_style
-            align: top_left
-            text_color: 0xFFFFFF
-
         # =========================================================================
         # BUTTON: Blind Semi Closed (33%)
         # =========================================================================
@@ -777,9 +732,45 @@ lvgl:
             on_click:
               - homeassistant.service:
                   service: cover.set_cover_position
-                  data:
-                    entity_id: cover.office_blind
-                    position: "0"
+                data:
+                  entity_id: cover.office_blind
+                  position: "0"
+
+    - id: experiment_page
+      layout: 
+        type: flex
+        flex_flow: column_wrap
+      scrollbar_mode: "off"
+      scroll_dir: "hor"
+      width: 100%
+      bg_color: Black
+      bg_opa: cover
+      pad_top: 34
+      pad_bottom: 5
+      pad_left: 5
+      pad_right: 5
+
+      widgets:
+
+        # =========================================================================
+        # BUTTON: Back (Return to Main Page)
+        # =========================================================================
+        - button: 
+            height: $button_height_single
+            width: $button_width
+            checkable: false
+            id: experiment_back_button
+            styles: control
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $chevron_left
+              - label:
+                  align: bottom_left
+                  text: "Back"
+            on_click:
+              - lvgl.page.show: main_page
 
     - id: aircon_page
       layout: 
