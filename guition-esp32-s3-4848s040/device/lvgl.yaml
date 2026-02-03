@@ -86,9 +86,10 @@ lvgl:
         - label:
             text: "--:--"
             id: experiment_time
-            text_font: roboto48_font
+            text_font: roboto96_font
             text_color: 0xFFFFFF
             align: center
+            text_align: center
 
         # =========================================================================
         # BUTTON: Home (Go to Main Page)
