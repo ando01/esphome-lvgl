@@ -781,3 +781,36 @@ lvgl:
                   service: switch.toggle
                   data:
                     entity_id: switch.office_air_conditioner
+
+        # =========================================================================
+        # BUTTON: Aircon Temperature
+        # =========================================================================
+        # WHAT THIS BUTTON DOES:
+        #   Displays the current aircon temperature reading.
+        #
+        # DATA SOURCE:
+        #   climate.office_air_conditioner (attribute: current_temperature)
+        #
+        # RELATED UI ELEMENT:
+        #   sensors.yaml → aircon_temp_label
+        # =========================================================================
+        - button: 
+            height: $button_height_single
+            width: $button_width
+            checkable: false
+            id: aircon_temp_button
+            styles: control
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $aircon
+              - label:
+                  text_font: roboto36_font
+                  align: top_right
+                  id: aircon_temp_label
+                  text: "--°"
+                  text_color: 0xFFFFFF
+              - label:
+                  align: bottom_left
+                  text: "Temp"

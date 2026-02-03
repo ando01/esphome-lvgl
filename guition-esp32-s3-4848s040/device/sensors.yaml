@@ -129,6 +129,30 @@ sensor:
     attribute: current_position
 
   # ===========================================================================
+  # SENSOR: Aircon Current Temperature
+  # ===========================================================================
+  # WHAT IT MONITORS:
+  #   Current temperature reported by the air conditioner
+  #   Watches: climate.office_air_conditioner (current_temperature)
+  #
+  # WHAT IT UPDATES:
+  #   The temperature label inside the Aircon Temp button
+  #
+  # RELATED UI ELEMENT:
+  #   lvgl.yaml → aircon_temp_label
+  # ===========================================================================
+  - platform: homeassistant
+    entity_id: climate.office_air_conditioner
+    id: aircon_current_temperature
+    attribute: current_temperature
+    on_value:
+      - lvgl.label.update:
+          id: aircon_temp_label
+          text:
+            format: "%.1f°"
+            args: [ 'x' ]
+
+  # ===========================================================================
   # SENSOR: Centauri Carbon Print Progress
   # ===========================================================================
   # WHAT IT MONITORS:
