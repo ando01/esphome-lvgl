@@ -933,7 +933,8 @@ lvgl:
 
     - id: aircon_lab_page
       layout:
-        type: none
+        type: flex
+        flex_flow: column
       scrollbar_mode: "off"
       width: 100%
       height: 100%
@@ -941,122 +942,130 @@ lvgl:
       bg_opa: cover
 
       widgets:
-        # Back button
-        - button:
-            id: aircon_lab_back_button
-            width: 120px
-            height: 60px
-            x: 10
-            y: 10
-            styles: control
+        - obj:
+            id: aircon_lab_root
+            width: 100%
+            height: 100%
+            bg_opa: TRANSP
+            border_width: 0
+            pad_all: 0
             widgets:
+              # Back button
+              - button:
+                  id: aircon_lab_back_button
+                  width: 120px
+                  height: 60px
+                  x: 10
+                  y: 10
+                  styles: control
+                  widgets:
+                    - label:
+                        text_font: $icon_font
+                        align: left_mid
+                        text: $chevron_left
+                    - label:
+                        align: right_mid
+                        text: "Back"
+                  on_click:
+                    - lvgl.page.show: aircon_page
+
+              # Arc control for target temperature
+              - arc:
+                  id: aircon_target_arc
+                  x: 40
+                  y: 60
+                  width: 400
+                  height: 400
+                  min_value: 16
+                  max_value: 30
+                  start_angle: 135
+                  end_angle: 45
+                  rotation: 0
+                  value: 22
+                  arc_width: 18
+                  arc_color: 0x2A2A2A
+                  indicator:
+                    arc_color: 0x2E6B2E
+                    arc_width: 18
+                  knob:
+                    color: 0xFFFFFF
+                  on_value:
+                    - homeassistant.service:
+                        service: climate.set_temperature
+                        data:
+                          entity_id: climate.office_air_conditioner
+                          temperature: !lambda return x;
+
+              # Mode label
               - label:
-                  text_font: $icon_font
-                  align: left_mid
-                  text: $chevron_left
-              - label:
-                  align: right_mid
-                  text: "Back"
-            on_click:
-              - lvgl.page.show: aircon_page
-
-        # Arc control for target temperature
-        - arc:
-            id: aircon_target_arc
-            x: 40
-            y: 60
-            width: 400
-            height: 400
-            min_value: 16
-            max_value: 30
-            start_angle: 135
-            end_angle: 45
-            rotation: 0
-            value: 22
-            arc_width: 18
-            arc_color: 0x2A2A2A
-            indicator:
-              arc_color: 0x2E6B2E
-              arc_width: 18
-            knob:
-              color: 0xFFFFFF
-            on_value:
-              - homeassistant.service:
-                  service: climate.set_temperature
-                  data:
-                    entity_id: climate.office_air_conditioner
-                    temperature: !lambda return x;
-
-        # Mode label
-        - label:
-            id: aircon_lab_mode_label
-            text: "Auto"
-            text_font: roboto17_font
-            text_color: 0xFFFFFF
-            align: center
-            y: -70
-
-        # Target temperature label (center)
-        - label:
-            id: aircon_lab_target_label
-            text: "--°"
-            text_font: roboto44_font
-            text_color: 0xFFFFFF
-            align: center
-
-        # Current temperature label (below)
-        - label:
-            id: aircon_lab_current_label
-            text: "--°"
-            text_font: roboto17_font
-            text_color: 0xFFFFFF
-            align: center
-            y: 60
-
-        # Down button
-        - button:
-            id: aircon_lab_down_button
-            width: 90px
-            height: 90px
-            x: 160
-            y: 360
-            styles: control
-            widgets:
-              - label:
-                  text: "-"
-                  text_font: roboto44_font
+                  id: aircon_lab_mode_label
+                  text: "Auto"
+                  text_font: roboto17_font
+                  text_color: 0xFFFFFF
                   align: center
-            on_click:
-              - homeassistant.service:
-                  service: climate.set_temperature
-                  data:
-                    entity_id: climate.office_air_conditioner
-                    temperature: !lambda |-
-                      if (id(aircon_target_temperature).has_state()) {
-                        return id(aircon_target_temperature).state - 1.0f;
-                      }
-                      return 0.0f;
+                  y: -70
 
-        # Up button
-        - button:
-            id: aircon_lab_up_button
-            width: 90px
-            height: 90px
-            x: 260
-            y: 360
-            styles: control
-            widgets:
+              # Target temperature label (center)
               - label:
-                  text: "+"
+                  id: aircon_lab_target_label
+                  text: "--°"
                   text_font: roboto44_font
+                  text_color: 0xFFFFFF
                   align: center
-            on_click:
-              - homeassistant.service:
-                  service: climate.set_temperature
-                  data:
-                    entity_id: climate.office_air_conditioner
-                    temperature: !lambda |-
-                      if (id(aircon_target_temperature).has_state()) {
-                        return id(aircon_target_temperature).state + 1.0f;
-                      }
-                      return 0.0f;
+
+              # Current temperature label (below)
+              - label:
+                  id: aircon_lab_current_label
+                  text: "--°"
+                  text_font: roboto17_font
+                  text_color: 0xFFFFFF
+                  align: center
+                  y: 60
+
+              # Down button
+              - button:
+                  id: aircon_lab_down_button
+                  width: 90px
+                  height: 90px
+                  x: 160
+                  y: 360
+                  styles: control
+                  widgets:
+                    - label:
+                        text: "-"
+                        text_font: roboto44_font
+                        align: center
+                  on_click:
+                    - homeassistant.service:
+                        service: climate.set_temperature
+                        data:
+                          entity_id: climate.office_air_conditioner
+                          temperature: !lambda |-
+                            if (id(aircon_target_temperature).has_state()) {
+                              return id(aircon_target_temperature).state - 1.0f;
+                            }
+                            return 0.0f;
+
+              # Up button
+              - button:
+                  id: aircon_lab_up_button
+                  width: 90px
+                  height: 90px
+                  x: 260
+                  y: 360
+                  styles: control
+                  widgets:
+                    - label:
+                        text: "+"
+                        text_font: roboto44_font
+                        align: center
+                  on_click:
+                    - homeassistant.service:
+                        service: climate.set_temperature
+                        data:
+                          entity_id: climate.office_air_conditioner
+                          temperature: !lambda |-
+                            if (id(aircon_target_temperature).has_state()) {
+                              return id(aircon_target_temperature).state + 1.0f;
+                            }
+                            return 0.0f;
