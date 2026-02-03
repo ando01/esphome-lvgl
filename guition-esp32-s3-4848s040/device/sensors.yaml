@@ -147,9 +147,9 @@ sensor:
     attribute: current_temperature
     on_value:
       - lvgl.label.update:
-          id: aircon_temp_value_label
+          id: aircon_temp_label
           text:
-            format: "%.1f"
+            format: "%.0f°"
             args: [ 'x' ]
 
   # ===========================================================================
@@ -171,9 +171,9 @@ sensor:
     attribute: temperature
     on_value:
       - lvgl.label.update:
-          id: aircon_set_temp_value_label
+          id: aircon_set_temp_label
           text:
-            format: "%.1f"
+            format: "%.0f°"
             args: [ 'x' ]
 
   # ===========================================================================

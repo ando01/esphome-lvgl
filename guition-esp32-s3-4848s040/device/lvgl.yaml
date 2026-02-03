@@ -801,30 +801,12 @@ lvgl:
             id: aircon_temp_button
             styles: control
             widgets:
-              # Temperature (shown like printer progress layout)
-              - obj:
-                  align: top_right
-                  id: aircon_temp_container
-                  height: SIZE_CONTENT
-                  width: SIZE_CONTENT
-                  clickable: false
-                  layout:
-                    type: flex
-                    flex_flow: row
-                    flex_align_cross: end
-                  bg_opa: TRANSP
-                  border_width: 0
-                  pad_all: 0
-                  widgets:
-                    - label:
-                        text_font: roboto44_font
-                        text_color: 0xFFFFFF
-                        id: aircon_temp_value_label
-                        text: "--"
-                    - label:
-                        text_font: roboto17_font
-                        text_color: 0xFFFFFF
-                        text: "°"
+              - label:
+                  text_font: roboto44_font
+                  align: top_left
+                  id: aircon_temp_label
+                  text: "--°"
+                  text_color: 0xFFFFFF
               - label:
                   align: bottom_left
                   text: "Current"
@@ -919,30 +901,12 @@ lvgl:
             styles: control
             hidden: true
             widgets:
-              # Temperature (shown like printer progress layout)
-              - obj:
-                  align: top_right
-                  id: aircon_set_temp_container
-                  height: SIZE_CONTENT
-                  width: SIZE_CONTENT
-                  clickable: false
-                  layout:
-                    type: flex
-                    flex_flow: row
-                    flex_align_cross: end
-                  bg_opa: TRANSP
-                  border_width: 0
-                  pad_all: 0
-                  widgets:
-                    - label:
-                        text_font: roboto44_font
-                        text_color: 0xFFFFFF
-                        id: aircon_set_temp_value_label
-                        text: "--"
-                    - label:
-                        text_font: roboto17_font
-                        text_color: 0xFFFFFF
-                        text: "°"
+              - label:
+                  text_font: roboto44_font
+                  align: top_left
+                  id: aircon_set_temp_label
+                  text: "--°"
+                  text_color: 0xFFFFFF
               - label:
                   align: bottom_left
                   text: "Target"
