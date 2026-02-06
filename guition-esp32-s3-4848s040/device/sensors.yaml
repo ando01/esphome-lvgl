@@ -271,8 +271,6 @@ sensor:
           text:
             format: "%.1f°C"
             args: [ 'x' ]
-      - lambda: |-
-          id(heating_target_setpoint) = x;
       - lvgl.arc.update:
           id: heating_track_arc
           value: !lambda |-

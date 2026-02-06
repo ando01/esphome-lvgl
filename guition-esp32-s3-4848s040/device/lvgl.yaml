@@ -1283,54 +1283,11 @@ lvgl:
                           entity_id: climate.central_heating
                           hvac_mode: heat
                     - delay: 100ms
-                    - lambda: |-
-                        float v = (float)x / 2.0f;
-                        if (v < 10.0f) v = 10.0f;
-                        if (v > 32.0f) v = 32.0f;
-                        id(heating_target_setpoint) = v;
-                    - lvgl.label.update:
-                        id: heating_lab_target_label
-                        text:
-                          format: "%.1f°C"
-                          args: [ 'id(heating_target_setpoint)' ]
-                    - lvgl.arc.update:
-                        id: heating_target_dot_arc
-                        value: !lambda |-
-                          int v = (int)roundf(id(heating_target_setpoint) * 2.0f);
-                          if (v < 20) v = 20;
-                          if (v > 64) v = 64;
-                          return v;
-                    - lvgl.arc.update:
-                        id: heating_delta_arc
-                        value: !lambda |-
-                          float cur = id(heating_current_temperature).has_state()
-                            ? id(heating_current_temperature).state
-                            : id(heating_target_setpoint);
-                          int cur_v = (int)roundf(cur * 2.0f);
-                          int tgt_v = (int)roundf(id(heating_target_setpoint) * 2.0f);
-                          if (cur_v < 20) cur_v = 20;
-                          if (cur_v > 64) cur_v = 64;
-                          if (tgt_v < 20) tgt_v = 20;
-                          if (tgt_v > 64) tgt_v = 64;
-                          return cur_v > tgt_v ? cur_v : tgt_v;
-                    - lvgl.arc.update:
-                        id: heating_mask_arc
-                        value: !lambda |-
-                          float cur = id(heating_current_temperature).has_state()
-                            ? id(heating_current_temperature).state
-                            : id(heating_target_setpoint);
-                          int cur_v = (int)roundf(cur * 2.0f);
-                          int tgt_v = (int)roundf(id(heating_target_setpoint) * 2.0f);
-                          if (cur_v < 20) cur_v = 20;
-                          if (cur_v > 64) cur_v = 64;
-                          if (tgt_v < 20) tgt_v = 20;
-                          if (tgt_v > 64) tgt_v = 64;
-                          return cur_v < tgt_v ? cur_v : tgt_v;
                     - homeassistant.service:
                         service: climate.set_temperature
                         data:
                           entity_id: climate.central_heating
-                          temperature: !lambda return id(heating_target_setpoint);
+                          temperature: !lambda return (float)x / 2.0f;
 
               # Mode label
               - label:
@@ -1404,54 +1361,18 @@ lvgl:
                           entity_id: climate.central_heating
                           hvac_mode: heat
                     - delay: 100ms
-                    - lambda: |-
-                        float v = id(heating_target_setpoint) - 0.5f;
-                        if (v < 10.0f) v = 10.0f;
-                        if (v > 32.0f) v = 32.0f;
-                        id(heating_target_setpoint) = v;
-                    - lvgl.label.update:
-                        id: heating_lab_target_label
-                        text:
-                          format: "%.1f°C"
-                          args: [ 'id(heating_target_setpoint)' ]
-                    - lvgl.arc.update:
-                        id: heating_target_dot_arc
-                        value: !lambda |-
-                          int v = (int)roundf(id(heating_target_setpoint) * 2.0f);
-                          if (v < 20) v = 20;
-                          if (v > 64) v = 64;
-                          return v;
-                    - lvgl.arc.update:
-                        id: heating_delta_arc
-                        value: !lambda |-
-                          float cur = id(heating_current_temperature).has_state()
-                            ? id(heating_current_temperature).state
-                            : id(heating_target_setpoint);
-                          int cur_v = (int)roundf(cur * 2.0f);
-                          int tgt_v = (int)roundf(id(heating_target_setpoint) * 2.0f);
-                          if (cur_v < 20) cur_v = 20;
-                          if (cur_v > 64) cur_v = 64;
-                          if (tgt_v < 20) tgt_v = 20;
-                          if (tgt_v > 64) tgt_v = 64;
-                          return cur_v > tgt_v ? cur_v : tgt_v;
-                    - lvgl.arc.update:
-                        id: heating_mask_arc
-                        value: !lambda |-
-                          float cur = id(heating_current_temperature).has_state()
-                            ? id(heating_current_temperature).state
-                            : id(heating_target_setpoint);
-                          int cur_v = (int)roundf(cur * 2.0f);
-                          int tgt_v = (int)roundf(id(heating_target_setpoint) * 2.0f);
-                          if (cur_v < 20) cur_v = 20;
-                          if (cur_v > 64) cur_v = 64;
-                          if (tgt_v < 20) tgt_v = 20;
-                          if (tgt_v > 64) tgt_v = 64;
-                          return cur_v < tgt_v ? cur_v : tgt_v;
                     - homeassistant.service:
                         service: climate.set_temperature
                         data:
                           entity_id: climate.central_heating
-                          temperature: !lambda return id(heating_target_setpoint);
+                          temperature: !lambda |-
+                            float v = 10.0f;
+                            if (id(heating_target_temperature).has_state()) {
+                              v = id(heating_target_temperature).state - 0.5f;
+                            }
+                            if (v < 10.0f) v = 10.0f;
+                            if (v > 32.0f) v = 32.0f;
+                            return v;
 
               # Up button (+0.5C)
               - button:
@@ -1478,51 +1399,15 @@ lvgl:
                           entity_id: climate.central_heating
                           hvac_mode: heat
                     - delay: 100ms
-                    - lambda: |-
-                        float v = id(heating_target_setpoint) + 0.5f;
-                        if (v < 10.0f) v = 10.0f;
-                        if (v > 32.0f) v = 32.0f;
-                        id(heating_target_setpoint) = v;
-                    - lvgl.label.update:
-                        id: heating_lab_target_label
-                        text:
-                          format: "%.1f°C"
-                          args: [ 'id(heating_target_setpoint)' ]
-                    - lvgl.arc.update:
-                        id: heating_target_dot_arc
-                        value: !lambda |-
-                          int v = (int)roundf(id(heating_target_setpoint) * 2.0f);
-                          if (v < 20) v = 20;
-                          if (v > 64) v = 64;
-                          return v;
-                    - lvgl.arc.update:
-                        id: heating_delta_arc
-                        value: !lambda |-
-                          float cur = id(heating_current_temperature).has_state()
-                            ? id(heating_current_temperature).state
-                            : id(heating_target_setpoint);
-                          int cur_v = (int)roundf(cur * 2.0f);
-                          int tgt_v = (int)roundf(id(heating_target_setpoint) * 2.0f);
-                          if (cur_v < 20) cur_v = 20;
-                          if (cur_v > 64) cur_v = 64;
-                          if (tgt_v < 20) tgt_v = 20;
-                          if (tgt_v > 64) tgt_v = 64;
-                          return cur_v > tgt_v ? cur_v : tgt_v;
-                    - lvgl.arc.update:
-                        id: heating_mask_arc
-                        value: !lambda |-
-                          float cur = id(heating_current_temperature).has_state()
-                            ? id(heating_current_temperature).state
-                            : id(heating_target_setpoint);
-                          int cur_v = (int)roundf(cur * 2.0f);
-                          int tgt_v = (int)roundf(id(heating_target_setpoint) * 2.0f);
-                          if (cur_v < 20) cur_v = 20;
-                          if (cur_v > 64) cur_v = 64;
-                          if (tgt_v < 20) tgt_v = 20;
-                          if (tgt_v > 64) tgt_v = 64;
-                          return cur_v < tgt_v ? cur_v : tgt_v;
                     - homeassistant.service:
                         service: climate.set_temperature
                         data:
                           entity_id: climate.central_heating
-                          temperature: !lambda return id(heating_target_setpoint);
+                          temperature: !lambda |-
+                            float v = 10.0f;
+                            if (id(heating_target_temperature).has_state()) {
+                              v = id(heating_target_temperature).state + 0.5f;
+                            }
+                            if (v < 10.0f) v = 10.0f;
+                            if (v > 32.0f) v = 32.0f;
+                            return v;
