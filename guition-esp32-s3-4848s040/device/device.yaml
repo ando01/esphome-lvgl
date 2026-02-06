@@ -76,10 +76,6 @@ globals:
     type: float
     restore_value: false
     initial_value: '20.0'
-  - id: heating_target_pending_until
-    type: uint32_t
-    restore_value: false
-    initial_value: '0'
 
 # -----------------------------------------------------------------------------
 # PSRAM (External Memory)

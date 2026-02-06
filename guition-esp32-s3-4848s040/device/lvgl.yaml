@@ -1288,7 +1288,6 @@ lvgl:
                         if (v < 10.0f) v = 10.0f;
                         if (v > 32.0f) v = 32.0f;
                         id(heating_target_setpoint) = v;
-                        id(heating_target_pending_until) = millis() + 2000;
                     - lvgl.label.update:
                         id: heating_lab_target_label
                         text:
@@ -1410,7 +1409,6 @@ lvgl:
                         if (v < 10.0f) v = 10.0f;
                         if (v > 32.0f) v = 32.0f;
                         id(heating_target_setpoint) = v;
-                        id(heating_target_pending_until) = millis() + 2000;
                     - lvgl.label.update:
                         id: heating_lab_target_label
                         text:
@@ -1485,7 +1483,6 @@ lvgl:
                         if (v < 10.0f) v = 10.0f;
                         if (v > 32.0f) v = 32.0f;
                         id(heating_target_setpoint) = v;
-                        id(heating_target_pending_until) = millis() + 2000;
                     - lvgl.label.update:
                         id: heating_lab_target_label
                         text:

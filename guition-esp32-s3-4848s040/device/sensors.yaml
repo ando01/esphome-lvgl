@@ -266,66 +266,57 @@ sensor:
     id: heating_target_temperature
     attribute: temperature
     on_value:
-      - if:
-          condition:
-            lambda: |-
-              if (millis() < id(heating_target_pending_until)) {
-                float diff = fabsf(x - id(heating_target_setpoint));
-                return diff < 0.01f;
-              }
-              return true;
-          then:
-            - lvgl.label.update:
-                id: heating_lab_target_label
-                text:
-                  format: "%.1f°C"
-                  args: [ 'x' ]
-            - lambda: |-
-                id(heating_target_setpoint) = x;
-            - lvgl.arc.update:
-                id: heating_track_arc
-                value: !lambda |-
-                  int v = (int)roundf(x * 2.0f);
-                  if (v < 20) v = 20;
-                  if (v > 64) v = 64;
-                  return v;
-            - lvgl.arc.update:
-                id: heating_target_dot_arc
-                value: !lambda |-
-                  int v = (int)roundf(x * 2.0f);
-                  if (v < 20) v = 20;
-                  if (v > 64) v = 64;
-                  return v;
-            - lvgl.arc.update:
-                id: heating_delta_arc
-                value: !lambda |-
-                  float tgt = x;
-                  float cur = tgt;
-                  if (id(heating_current_temperature).has_state()) {
-                    cur = id(heating_current_temperature).state;
-                  }
-                  int cur_v = (int)roundf(cur * 2.0f);
-                  int tgt_v = (int)roundf(tgt * 2.0f);
-                  if (cur_v < 20) cur_v = 20;
-                  if (cur_v > 64) cur_v = 64;
-                  if (tgt_v < 20) tgt_v = 20;
-                  if (tgt_v > 64) tgt_v = 64;
-                  return cur_v > tgt_v ? cur_v : tgt_v;
-            - lvgl.arc.update:
-                id: heating_mask_arc
-                value: !lambda |-
-                  float tgt = x;
-                  float cur = tgt;
-                  if (id(heating_current_temperature).has_state()) {
-                    cur = id(heating_current_temperature).state;
-                  }
-                  int cur_v = (int)roundf(cur * 2.0f);
-                  int tgt_v = (int)roundf(tgt * 2.0f);
-                  if (cur_v < 20) cur_v = 20;
-                  if (cur_v > 64) cur_v = 64;
-                  if (tgt_v < 20) tgt_v = 20;
-                  if (tgt_v > 64) tgt_v = 64;
-                  return cur_v < tgt_v ? cur_v : tgt_v;
+      - lvgl.label.update:
+          id: heating_lab_target_label
+          text:
+            format: "%.1f°C"
+            args: [ 'x' ]
+      - lambda: |-
+          id(heating_target_setpoint) = x;
+      - lvgl.arc.update:
+          id: heating_track_arc
+          value: !lambda |-
+            int v = (int)roundf(x * 2.0f);
+            if (v < 20) v = 20;
+            if (v > 64) v = 64;
+            return v;
+      - lvgl.arc.update:
+          id: heating_target_dot_arc
+          value: !lambda |-
+            int v = (int)roundf(x * 2.0f);
+            if (v < 20) v = 20;
+            if (v > 64) v = 64;
+            return v;
+      - lvgl.arc.update:
+          id: heating_delta_arc
+          value: !lambda |-
+            float tgt = x;
+            float cur = tgt;
+            if (id(heating_current_temperature).has_state()) {
+              cur = id(heating_current_temperature).state;
+            }
+            int cur_v = (int)roundf(cur * 2.0f);
+            int tgt_v = (int)roundf(tgt * 2.0f);
+            if (cur_v < 20) cur_v = 20;
+            if (cur_v > 64) cur_v = 64;
+            if (tgt_v < 20) tgt_v = 20;
+            if (tgt_v > 64) tgt_v = 64;
+            return cur_v > tgt_v ? cur_v : tgt_v;
+      - lvgl.arc.update:
+          id: heating_mask_arc
+          value: !lambda |-
+            float tgt = x;
+            float cur = tgt;
+            if (id(heating_current_temperature).has_state()) {
+              cur = id(heating_current_temperature).state;
+            }
+            int cur_v = (int)roundf(cur * 2.0f);
+            int tgt_v = (int)roundf(tgt * 2.0f);
+            if (cur_v < 20) cur_v = 20;
+            if (cur_v > 64) cur_v = 64;
+            if (tgt_v < 20) tgt_v = 20;
+            if (tgt_v > 64) tgt_v = 64;
+            return cur_v < tgt_v ? cur_v : tgt_v;
 
 # =============================================================================
 # TEXT SENSORS (String Values)
