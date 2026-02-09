@@ -105,10 +105,6 @@ touchscreen:
     i2c_id: bus_a
     reset_pin: GPIO22
     interrupt_pin: GPIO21
-#    transform:
-#      swap_xy: true
-#      mirror_x: false
-#      mirror_y: true
 
 # Display
 display:
