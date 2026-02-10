@@ -1,12 +1,12 @@
 font:
   - file: "gfonts://Roboto"
-    id: roboto44_font
-    size: 44
+    id: roboto56_font
+    size: 56
     bpp: 4
 
   - file: "gfonts://Roboto"
-    id: roboto22_font
-    size: 22
+    id: roboto21_font
+    size: 21
     bpp: 4
 
   - file: "gfonts://Roboto"
@@ -17,8 +17,8 @@ font:
 lvgl:
   style_definitions:
     - id: clockbar_style
-      text_font: roboto22_font
+      text_font: roboto21_font
     - id: label_style
       text_font: roboto24_font
     - id: stat_style
-      text_font: roboto44_font
+      text_font: roboto56_font
