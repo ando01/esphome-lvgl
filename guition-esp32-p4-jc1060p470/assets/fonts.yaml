@@ -20,3 +20,5 @@ lvgl:
       text_font: roboto20_font
     - id: roboto24_style
       text_font: roboto24_font
+    - id: roboto36_style
+      text_font: roboto36_font
