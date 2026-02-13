@@ -16,8 +16,9 @@ esp32:
 
 # Esphome
 esphome:
-  name: esp32-p4-tab10
-  friendly_name: 10.1inch-tab
+  name: ${name}
+  friendly_name: ${friendly_name}
+  area: ${room}
   platformio_options:
     board_build.flash_mode: dio
 
@@ -27,7 +28,12 @@ external_components:
     components: [mipi_dsi]
   - source: github://kvj/esphome@jd9365_gsl3680
     components: [gsl3680]
-  
+
+# Video memory
+psram:
+  mode: hex
+  speed: 200MHz
+
 # Secondary ESP32-C6 device for connectivity
 esp32_hosted:
   variant: esp32c6
@@ -39,11 +45,6 @@ esp32_hosted:
   d2_pin: GPIO16
   d3_pin: GPIO17
   active_high: true
-
-# Video memory
-psram:
-  mode: hex
-  speed: 200MHz
 
 # Enable logging
 logger:
@@ -71,7 +72,21 @@ light:
     default_transition_length: 0s
     gamma_correct: 1.0
 
-# Touchscreen
+# Display
+display:
+  - platform: mipi_dsi
+    model: JC8012P4A1
+    reset_pin: GPIO27
+    update_interval: 17ms
+    id: my_display
+    rotation: 180
+    auto_clear_enabled: false
+    color_order: RGB
+    dimensions:
+      width: 800
+      height: 1280
+
+# I2C
 i2c:
   - id: i2c_bus_a
     sda: GPIO7
@@ -81,6 +96,7 @@ i2c:
     sda_pullup_enabled: False
     scl_pullup_enabled: False
 
+# Touchscreen
 touchscreen:
   - platform: gsl3680
     id: my_touchscreen
@@ -105,40 +121,3 @@ touchscreen:
               - light.turn_on: display_backlight
               - lvgl.resume:
               - lvgl.widget.redraw:
-
-# Display
-display:
-  - platform: mipi_dsi
-    model: JC8012P4A1
-    reset_pin: GPIO27
-    update_interval: 17ms
-    id: my_display
-    rotation: 180
-    auto_clear_enabled: false
-    color_order: RGB
-    dimensions:
-      width: 800
-      height: 1280
-
-lvgl:
-  buffer_size: 100%
-  byte_order: little_endian
-  displays:
-    - my_display
-  touchscreens:
-    - my_touchscreen
-  on_idle:
-    timeout: 300s
-    then:
-      - logger.log: "LVGL is idle"
-      - lvgl.pause:
-      - light.turn_off:
-          id: display_backlight
-          transition_length: 2s
-  widgets:
-    - label:
-        id: txtlbl
-        text_color: black
-        text: "ESPHOME"
-        align: CENTER
-        text_font: montserrat_48

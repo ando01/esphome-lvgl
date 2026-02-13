@@ -1,9 +1,7 @@
 lvgl:
-  buffer_size: 100%
-  byte_order: little_endian
   displays: my_display
-  touchscreens: my_touchscreen
-
+  byte_order: little_endian
+  
   top_layer:
     widgets:
     

@@ -1,8 +1,7 @@
-# Designed for guition-esp32-p4-jc1060p470
+# Designed for guition-esp32-p4-jc4880p443
 esp32:
   variant: esp32p4
   flash_size: 16MB
-  cpu_frequency: 360MHZ
   framework:
     type: esp-idf
     advanced:
@@ -13,6 +12,7 @@ esp32:
     sdkconfig_options:
       CONFIG_SPIRAM_XIP_FROM_PSRAM: "y"   # Stop screen flashing during OTA
       CONFIG_SDMMC_HOST_DEFAULT: "y"
+  cpu_frequency: 360MHz
 
 # Esphome
 esphome:
@@ -56,13 +56,7 @@ logger:
 # Power management
 esp_ldo:
   - channel: 3
-    id: dsi_phy_enable
     voltage: 2.5V
-    adjustable: True
-  - channel: 4
-    id: sd_card_power
-    voltage: 2.7V
-    adjustable: True
 
 # Backlight
 output:
@@ -77,45 +71,35 @@ light:
     icon: mdi:lightbulb-on
     id: display_backlight
     restore_mode: ALWAYS_ON
-    default_transition_length: 0s
-    gamma_correct: 1.0
 
 # Touchscreen
 i2c:
-  - id: bus_a
-    sda: GPIO07
-    scl: GPIO08
-    frequency: 400kHz
-    sda_pullup_enabled: False
-    scl_pullup_enabled: False
+  id: i2c_bus
+  sda: 7
+  scl: 8
+  scan: false
+  frequency: 400kHz
 
-i2c_device:
-  - id: i2cdev1
-    address: 0x18
-  - id: i2cdev2
-    address: 0x32
-  - id: i2cdev3
-    address: 0x36
-  - id: i2cdev4
-    address: 0x40
-
-# Touchscreen
 touchscreen:
-  - platform: gt911
-    id: my_touchscreen
-    i2c_id: bus_a
-    reset_pin: GPIO22
-    interrupt_pin: GPIO21
-
-# Display
+  platform: gt911
+  i2c_id: i2c_bus
+  id: device_touchscreen
+  reset_pin: GPIO3
+  update_interval: 100ms
+  transform: #This is for 90 degree display rotation
+    swap_xy: true
+    mirror_x: false
+    mirror_y: true
+ 
+ # Display
 display:
   - platform: mipi_dsi
-    id: my_display
-    model: JC1060P470
-    color_order: RGB
-    reset_pin:
-      number: GPIO05
-    rotation: 0
-    update_interval: never
-    auto_clear_enabled: false
-    hsync_pulse_width: 20     # The only difference to the examples provided
+    id: device_display
+    model: JC4880P443
+    byte_order: little_endian
+    rotation: 90
+
+# Special LVGL settings required for this display  
+lvgl:
+  byte_order: little_endian
+   
