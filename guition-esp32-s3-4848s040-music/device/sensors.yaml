@@ -25,7 +25,6 @@ interval:
       - lvgl.label.update:
           id: media_elapsed_label
           text: !lambda |-
-            // When last_position_timestamp is 0 (e.g. after skip), use last_media_position so we show 0 until HA sends new position
             float pos = id(last_position_timestamp) != 0 && id(media_position_sensor).has_state()
               ? id(media_position_sensor).state : id(last_media_position);
             if (id(media_player_state_sensor).state == "playing") {
@@ -68,14 +67,24 @@ text_sensor:
     id: media_title_sensor
     attribute: media_title
     on_value:
-      # Track changed (skip/next) — reset progress so UI shows 0 until HA sends new position
-      - lambda: "id(last_position_timestamp) = 0; id(last_media_position) = 0.0f;"
+      # Track changed (skip/next) — reset position to 0 and stamp the current
+      # time so the 1-second interval timer can immediately start counting
+      # from 0 for the new track (avoids stale timestamp = 0 blocking updates).
+      - lambda: |-
+          id(last_media_position) = 0.0f;
+          auto t = id(sntp_time).now();
+          if (t.is_valid()) {
+            id(last_position_timestamp) = t.timestamp;
+          }
       - lvgl.label.update:
           id: media_title_label
           text: !lambda 'return x.empty() ? std::string("—") : x;'
       - lvgl.label.update:
           id: media_elapsed_label
-          text: "0:00"
+          text: "00:00"
+      - lvgl.label.update:
+          id: media_duration_label
+          text: "00:00"
       - lvgl.bar.update:
           id: media_progress_bar
           value: 0
