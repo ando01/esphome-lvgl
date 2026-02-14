@@ -77,12 +77,14 @@ lvgl:
             text_color: 0xFFFFFF
             text_align: right
 
-        # Progress bar: full screen width (content area is 480px with pad_left/right 0)
+        # Progress bar: full screen width (content area is 480px with pad_left/right 0).
+        # Explicit width/height required; y must be within content height (0–456).
         - bar:
             id: media_progress_bar
             x: 0
-            y: 480
-            height: 4px
+            y: 356
+            width: 480
+            height: 4
             min_value: 0
             max_value: 100
             value: 0
