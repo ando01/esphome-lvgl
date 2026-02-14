@@ -78,9 +78,33 @@ lvgl:
             text_align: right
 
         # Progress bar: full screen width (content area 480px).
-        # NOTE: bg_color/bg_opa/radius MUST be at top level (not under main:) because
-        # an explicit main: sub-key causes collect_parts() to discard top-level
-        # width/height. All main-part styles go here alongside size props.
+        #
+        # IMPORTANT — ESPHome LVGL sizing gotcha for bar (and slider/arc):
+        # Do NOT mix top-level style props with an explicit "main:" sub-key.
+        # Internally, ESPHome's collect_parts() first gathers every top-level
+        # property (width, height, bg_color, …) into the "main" part. But if
+        # it then finds an explicit "main:" key in the config, it REPLACES the
+        # entire main part with only the properties listed under that key —
+        # silently discarding width, height, x, y, and anything else that was
+        # at the top level.
+        #
+        # BAD (width/height silently ignored):
+        #   - bar:
+        #       width: 480       # lost!
+        #       height: 4        # lost!
+        #       main:
+        #         bg_color: 0x000000
+        #         radius: 0
+        #
+        # GOOD (all main-part styles at the same level as size):
+        #   - bar:
+        #       width: 480       # applied
+        #       height: 4        # applied
+        #       bg_color: 0x000000
+        #       radius: 0
+        #
+        # The same applies to any widget with parts (indicator:, knob:, etc.)
+        # — you can safely use sub-keys for OTHER parts, just avoid "main:".
         - bar:
             id: media_progress_bar
             x: 0
