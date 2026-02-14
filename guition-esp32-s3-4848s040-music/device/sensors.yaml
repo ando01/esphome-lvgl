@@ -109,12 +109,21 @@ text_sensor:
     entity_id: media_player.office
     id: media_player_state_sensor
     on_value:
-      - lvgl.label.update:
-          id: media_play_pause_icon
-          text: !lambda |-
-            // UTF-8 (4-byte): pause U+F03E4 = F3 A0 8F A4, play U+F040D = F3 A0 90 8D
-            if (x == "playing") return std::string("\xF3\xA0\x8F\xA4");
-            return std::string("\xF3\xA0\x90\x8D");
+      - if:
+          condition:
+            text_sensor.is_state:
+              id: media_player_state_sensor
+              state: "playing"
+          then:
+            - lvgl.widget.hide:
+                id: media_play_icon
+            - lvgl.widget.show:
+                id: media_pause_icon
+          else:
+            - lvgl.widget.show:
+                id: media_play_icon
+            - lvgl.widget.hide:
+                id: media_pause_icon
 
 sensor:
   - platform: homeassistant
