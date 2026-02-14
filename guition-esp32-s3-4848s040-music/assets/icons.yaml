@@ -9,12 +9,12 @@ font:
     bpp: 4
     glyphs:
       - "\U000F04AE"  # mdi-skip-previous
-      - "\U000F040D"  # mdi-play
+      - "\U000F040A"  # mdi-play
       - "\U000F03E4"  # mdi-pause
       - "\U000F04AD"  # mdi-skip-next
 
 substitutions:
   skip_previous: "\U000F04AE"
-  play:          "\U000F040D"
+  play:          "\U000F040A"
   pause:         "\U000F03E4"
   skip_next:     "\U000F04AD"
