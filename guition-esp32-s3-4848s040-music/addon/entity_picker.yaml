@@ -155,4 +155,4 @@ script:
       - lvgl.page.show:
           id: main_page
           animation: MOVE_TOP
-          time: 300ms
+          duration: 300ms
