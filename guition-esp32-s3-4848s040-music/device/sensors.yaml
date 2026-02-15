@@ -7,6 +7,10 @@
 # Album art base URL: http://192.168.1.30:8123 (path from HA already includes token).
 # =============================================================================
 
+# Default TV source name (override in your main YAML substitutions if needed)
+substitutions:
+  tv_source: "TV"
+
 # Store last HA position and time so we can estimate elapsed time between updates
 # (HA/Sonos often only push media_position every 5–10s; we tick every 1s)
 globals:
