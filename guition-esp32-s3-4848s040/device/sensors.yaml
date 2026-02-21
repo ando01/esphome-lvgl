@@ -208,8 +208,8 @@ sensor:
       - lvgl.label.update:
           id: heating_lab_current_value
           text:
-            format: "%.1f°C"
-            args: [ '(x - 32.0f) * 5.0f / 9.0f' ]
+            format: "%.1f°F"
+            args: [ 'x' ]
       - lvgl.arc.update:
           id: heating_current_arc
           value: !lambda return (int)roundf((x - 32.0f) * 5.0f / 9.0f * 2.0f);
@@ -257,8 +257,8 @@ sensor:
       - lvgl.label.update:
           id: heating_lab_target_label
           text:
-            format: "%.1f°C"
-            args: [ '(x - 32.0f) * 5.0f / 9.0f' ]
+            format: "%.1f°F"
+            args: [ 'x' ]
       - lvgl.arc.update:
           id: heating_track_arc
           value: !lambda return (int)roundf((x - 32.0f) * 5.0f / 9.0f * 2.0f);
