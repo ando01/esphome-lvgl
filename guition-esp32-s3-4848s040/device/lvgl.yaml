@@ -211,9 +211,9 @@ lvgl:
     # ===========================================================================
     # FAMILY ROOM PAGE - Main Controls (3x3 grid)
     # ===========================================================================
-    # [Ceiling~] [Lamps]    [Fireplace~]
-    # [Fan →]    [ ]        [ ]
-    # [← Back]   [Thermostat→] [ ]
+    # [Ceiling~]       [Lamps]       [Fireplace~]
+    # [Evening Lights] [Fan →]       [ ]
+    # [← Back]         [Thermostat→] [ ]
     # ~ = has brightness slider
     # ===========================================================================
     - id: family_room_page
@@ -360,7 +360,33 @@ lvgl:
                     entity_id: light.family_room_fireplace_lights
 
         # -----------------------------------------------------------------------
-        # [0,1] CEILING FAN  →  navigates to fan speed sub-page
+        # [0,1] EVENING LIGHTS
+        # Triggers: automation.family_room_lights_on_with_scene_controller_button_1
+        # -----------------------------------------------------------------------
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: false
+            id: fr_evening_lights_btn
+            styles: control
+            grid_cell_column_pos: 0
+            grid_cell_row_pos: 1
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $nightlight
+              - label:
+                  align: bottom_left
+                  text: "Evening Lights"
+            on_click:
+              - homeassistant.service:
+                  service: automation.trigger
+                  data:
+                    entity_id: automation.family_room_lights_on_with_scene_controller_button_1
+
+        # -----------------------------------------------------------------------
+        # [1,1] CEILING FAN  →  navigates to fan speed sub-page
         # Shown orange when fan is on (any speed).
         # State:   fr_fan_state (sensors.yaml)
         # -----------------------------------------------------------------------
@@ -370,7 +396,7 @@ lvgl:
             checkable: true
             id: fr_fan_btn
             styles: control
-            grid_cell_column_pos: 0
+            grid_cell_column_pos: 1
             grid_cell_row_pos: 1
             widgets:
               - label:
