@@ -14,12 +14,17 @@ font:
       "\U000F0140",  # mdi-chevron-down
       "\U000F0425",  # mdi-power
       "\U000F050F",  # mdi-thermometer
-      "\U000F02DC",  # mdi-home
+      "\U000F02DC",  # mdi-home (family room nav)
       "\U000F0502",  # mdi-television
       "\U000F1797",  # mdi-ceiling-fan
       "\U000F0238",  # mdi-fire (fireplace)
       "\U000F051A",  # mdi-pine-tree (xmas tree)
       "\U000F0210",  # mdi-fan (fan speed page)
+      "\U000F07D6",  # mdi-led-strip (kitchen LEDs)
+      "\U000F1051",  # mdi-led-strip-variant (cabinet LEDs)
+      "\U000F034C",  # mdi-food (kitchen nav)
+      "\U000F1120",  # mdi-table-chair (dining room nav)
+      "\U000F0379",  # mdi-monitor (office nav)
       ]
   - file: 'https://github.com/Templarian/MaterialDesign-Webfont/raw/v7.4.47/fonts/materialdesignicons-webfont.ttf'
     id: icon_font_small
@@ -31,16 +36,21 @@ font:
 
 # Map icons to names
 substitutions:
-  lightbulb:      "\U000F0335"
-  nightlight:     "\U000F1A4C"
-  chevron_left:   "\U000F0141"
-  chevron_up:     "\U000F0143"
-  chevron_down:   "\U000F0140"
-  power:          "\U000F0425"
-  thermometer:    "\U000F050F"
-  home:           "\U000F02DC"
-  television:     "\U000F0502"
-  ceiling_fan:    "\U000F1797"
-  fire:           "\U000F0238"
-  pine_tree:      "\U000F051A"
-  fan:            "\U000F0210"
+  lightbulb:          "\U000F0335"
+  nightlight:         "\U000F1A4C"
+  chevron_left:       "\U000F0141"
+  chevron_up:         "\U000F0143"
+  chevron_down:       "\U000F0140"
+  power:              "\U000F0425"
+  thermometer:        "\U000F050F"
+  home:               "\U000F02DC"
+  television:         "\U000F0502"
+  ceiling_fan:        "\U000F1797"
+  fire:               "\U000F0238"
+  pine_tree:          "\U000F051A"
+  fan:                "\U000F0210"
+  led_strip:          "\U000F07D6"
+  led_strip_variant:  "\U000F1051"
+  food:               "\U000F034C"
+  table_chair:        "\U000F1120"
+  monitor:            "\U000F0379"

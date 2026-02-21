@@ -88,12 +88,65 @@ lvgl:
             on_click:
               - lvgl.page.show: family_room_page
 
-        # Add more room buttons here when you expand to other rooms:
-        # - button:
-        #     ...
-        #     text: "Kitchen"
-        #     on_click:
-        #       - lvgl.page.show: kitchen_page
+        # -----------------------------------------------------------------------
+        # BUTTON: Kitchen
+        # -----------------------------------------------------------------------
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: false
+            id: kitchen_nav_btn
+            styles: control
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $food
+              - label:
+                  align: bottom_left
+                  text: "Kitchen"
+            on_click:
+              - lvgl.page.show: kitchen_page
+
+        # -----------------------------------------------------------------------
+        # BUTTON: Dining Room
+        # -----------------------------------------------------------------------
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: false
+            id: dining_room_nav_btn
+            styles: control
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $table_chair
+              - label:
+                  align: bottom_left
+                  text: "Dining Room"
+            on_click:
+              - lvgl.page.show: dining_room_page
+
+        # -----------------------------------------------------------------------
+        # BUTTON: Lisa's Office
+        # -----------------------------------------------------------------------
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: false
+            id: lisas_office_nav_btn
+            styles: control
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $monitor
+              - label:
+                  align: bottom_left
+                  text: "Lisa's Office"
+            on_click:
+              - lvgl.page.show: lisas_office_page
 
     # ===========================================================================
     # FAMILY ROOM PAGE - Main Controls (3x3 grid)
@@ -743,3 +796,588 @@ lvgl:
                               return id(fr_thermostat_target_temp).state + 1.0f;
                             }
                             return 70.0f;
+
+    # ===========================================================================
+    # KITCHEN PAGE - Main Controls (3x3 grid)
+    # ===========================================================================
+    # [Lights]   [LEDs]       [Cabinets]
+    # [Island]   [Thermostat] [Hall]
+    # [← Back]   [ ]          [ ]
+    # ===========================================================================
+    - id: kitchen_page
+      layout:
+        type: grid
+        grid_columns: [fr(1), fr(1), fr(1)]
+        grid_rows: [fr(1), fr(1), fr(1)]
+      scrollbar_mode: "off"
+      width: 100%
+      bg_color: Black
+      bg_opa: cover
+      pad_top: 34
+      pad_bottom: 5
+      pad_left: 5
+      pad_right: 5
+
+      widgets:
+
+        # [0,0] Main Overhead Lights
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: true
+            id: kt_ceiling_lights_btn
+            styles: control
+            grid_cell_column_pos: 0
+            grid_cell_row_pos: 0
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $lightbulb
+              - label:
+                  align: bottom_left
+                  text: "Lights"
+            on_click:
+              - homeassistant.service:
+                  service: light.toggle
+                  data:
+                    entity_id: light.kitchen_lights
+
+        # [1,0] Under-Cabinet LEDs
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: true
+            id: kt_leds_btn
+            styles: control
+            grid_cell_column_pos: 1
+            grid_cell_row_pos: 0
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $led_strip
+              - label:
+                  align: bottom_left
+                  text: "LEDs"
+            on_click:
+              - homeassistant.service:
+                  service: light.toggle
+                  data:
+                    entity_id: light.kitchen_leds
+
+        # [2,0] Cabinet WLED LEDs
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: true
+            id: kt_cabinet_leds_btn
+            styles: control
+            grid_cell_column_pos: 2
+            grid_cell_row_pos: 0
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $led_strip_variant
+              - label:
+                  align: bottom_left
+                  text: "Cabinets"
+            on_click:
+              - homeassistant.service:
+                  service: light.toggle
+                  data:
+                    entity_id: light.kitchen_cabinet_leds
+
+        # [0,1] Island WLED
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: true
+            id: kt_island_btn
+            styles: control
+            grid_cell_column_pos: 0
+            grid_cell_row_pos: 1
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $lightbulb
+              - label:
+                  align: bottom_left
+                  text: "Island"
+            on_click:
+              - homeassistant.service:
+                  service: light.toggle
+                  data:
+                    entity_id: light.wled_kitchen_island
+
+        # [1,1] Thermostat → kitchen thermostat sub-page
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: true
+            id: kt_thermostat_btn
+            styles: control
+            grid_cell_column_pos: 1
+            grid_cell_row_pos: 1
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $thermometer
+              - label:
+                  align: bottom_left
+                  text: "Thermostat"
+            on_click:
+              - lvgl.page.show: kitchen_thermostat_page
+
+        # [2,1] Hall Light
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: true
+            id: kt_hall_btn
+            styles: control
+            grid_cell_column_pos: 2
+            grid_cell_row_pos: 1
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $lightbulb
+              - label:
+                  align: bottom_left
+                  text: "Hall"
+            on_click:
+              - homeassistant.service:
+                  service: light.toggle
+                  data:
+                    entity_id: light.kitchen_hall_light
+
+        # [0,2] ← Back to Home
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: false
+            id: kt_back_btn
+            styles: control
+            grid_cell_column_pos: 0
+            grid_cell_row_pos: 2
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $chevron_left
+              - label:
+                  align: bottom_left
+                  text: "Back"
+            on_click:
+              - lvgl.page.show: main_page
+
+    # ===========================================================================
+    # KITCHEN THERMOSTAT PAGE - Circular arc temperature control
+    # ===========================================================================
+    - id: kitchen_thermostat_page
+      layout:
+        type: flex
+        flex_flow: column
+      scrollbar_mode: "off"
+      width: 100%
+      height: 100%
+      bg_color: 0x1E1E1E
+      bg_opa: cover
+
+      widgets:
+        - obj:
+            id: kt_therm_root
+            width: 100%
+            height: 100%
+            bg_opa: TRANSP
+            border_width: 0
+            pad_all: 0
+
+            widgets:
+
+              - button:
+                  id: kt_therm_back_btn
+                  width: 60px
+                  height: 60px
+                  x: 5
+                  y: 34
+                  styles: control
+                  widgets:
+                    - label:
+                        text_font: $icon_font
+                        align: center
+                        text: $chevron_left
+                  on_click:
+                    - lvgl.page.show: kitchen_page
+
+              - arc:
+                  id: kt_therm_track_arc
+                  x: 60
+                  y: 80
+                  width: 360
+                  height: 360
+                  min_value: 60
+                  max_value: 85
+                  start_angle: 135
+                  end_angle: 45
+                  rotation: 0
+                  value: 72
+                  arc_width: 18
+                  arc_color: 0x3A3A3A
+                  clickable: false
+                  adjustable: false
+                  indicator:
+                    arc_color: 0x3A3A3A
+                    arc_width: 0
+                  knob:
+                    bg_color: 0x3A3A3A
+
+              - arc:
+                  id: kt_therm_delta_arc
+                  x: 60
+                  y: 80
+                  width: 360
+                  height: 360
+                  min_value: 60
+                  max_value: 85
+                  start_angle: 135
+                  end_angle: 45
+                  rotation: 0
+                  value: 72
+                  arc_width: 0
+                  arc_color: 0x000000
+                  indicator:
+                    arc_color: 0xE06A2A
+                    arc_width: 18
+                  knob:
+                    bg_color: 0x000000
+                  clickable: false
+
+              - arc:
+                  id: kt_therm_mask_arc
+                  x: 60
+                  y: 80
+                  width: 360
+                  height: 360
+                  min_value: 60
+                  max_value: 85
+                  start_angle: 135
+                  end_angle: 45
+                  rotation: 0
+                  value: 72
+                  arc_width: 0
+                  arc_color: 0x000000
+                  indicator:
+                    arc_color: 0x8A3F1E
+                    arc_width: 18
+                  knob:
+                    bg_color: 0x000000
+                  clickable: false
+
+              - arc:
+                  id: kt_therm_current_arc
+                  x: 60
+                  y: 80
+                  width: 360
+                  height: 360
+                  min_value: 60
+                  max_value: 85
+                  start_angle: 135
+                  end_angle: 45
+                  rotation: 0
+                  value: 72
+                  arc_width: 0
+                  arc_color: 0x000000
+                  indicator:
+                    arc_color: 0x000000
+                    arc_width: 0
+                  knob:
+                    bg_color: 0xFFFFFF
+                    border_width: 2
+                    border_color: 0xE06A2A
+                  clickable: false
+
+              - arc:
+                  id: kt_therm_target_arc
+                  x: 65
+                  y: 85
+                  width: 350
+                  height: 350
+                  min_value: 60
+                  max_value: 85
+                  start_angle: 135
+                  end_angle: 45
+                  rotation: 0
+                  value: 72
+                  arc_width: 0
+                  arc_color: 0x000000
+                  indicator:
+                    arc_color: 0x000000
+                    arc_width: 0
+                  knob:
+                    bg_color: 0xFFFFFF
+                    width: 40
+                    height: 40
+                    radius: 20
+                    border_width: 4
+                    border_color: 0xE06A2A
+                  clickable: true
+                  adjustable: true
+                  on_value:
+                    - homeassistant.service:
+                        service: climate.set_temperature
+                        data:
+                          entity_id: climate.kitchen
+                          temperature: !lambda return (float)x;
+
+              - label:
+                  id: kt_therm_mode_label
+                  text: "..."
+                  text_font: roboto19_font
+                  text_color: 0xE06A2A
+                  align: center
+                  y: -70
+
+              - label:
+                  id: kt_therm_target_label
+                  text: "--°F"
+                  text_font: roboto48_font
+                  text_color: 0xE6E6E6
+                  align: center
+
+              - obj:
+                  id: kt_therm_current_row
+                  width: SIZE_CONTENT
+                  height: SIZE_CONTENT
+                  align: center
+                  y: 55
+                  bg_opa: TRANSP
+                  border_width: 0
+                  pad_all: 0
+                  clickable: false
+                  layout:
+                    type: flex
+                    flex_flow: row
+                    flex_align_cross: center
+                  widgets:
+                    - label:
+                        text: $thermometer
+                        text_font: icon_font_small
+                        text_color: 0xE06A2A
+                        pad_right: 6
+                    - label:
+                        id: kt_therm_current_value
+                        text: "--°F"
+                        text_font: roboto19_font
+                        text_color: 0xE06A2A
+
+              - button:
+                  id: kt_therm_down_btn
+                  width: 70px
+                  height: 70px
+                  x: 160
+                  y: 360
+                  styles: control
+                  radius: 35px
+                  bg_opa: TRANSP
+                  border_width: 2
+                  border_color: 0x7A7A7A
+                  widgets:
+                    - label:
+                        text: "-"
+                        text_font: roboto44_font
+                        align: center
+                        text_color: 0xB0B0B0
+                  on_click:
+                    - homeassistant.service:
+                        service: climate.set_temperature
+                        data:
+                          entity_id: climate.kitchen
+                          temperature: !lambda |-
+                            if (id(kt_thermostat_target_temp).has_state()) {
+                              return id(kt_thermostat_target_temp).state - 1.0f;
+                            }
+                            return 70.0f;
+
+              - button:
+                  id: kt_therm_up_btn
+                  width: 70px
+                  height: 70px
+                  x: 260
+                  y: 360
+                  styles: control
+                  radius: 35px
+                  bg_opa: TRANSP
+                  border_width: 2
+                  border_color: 0x7A7A7A
+                  widgets:
+                    - label:
+                        text: "+"
+                        text_font: roboto44_font
+                        align: center
+                        text_color: 0xB0B0B0
+                  on_click:
+                    - homeassistant.service:
+                        service: climate.set_temperature
+                        data:
+                          entity_id: climate.kitchen
+                          temperature: !lambda |-
+                            if (id(kt_thermostat_target_temp).has_state()) {
+                              return id(kt_thermostat_target_temp).state + 1.0f;
+                            }
+                            return 70.0f;
+
+    # ===========================================================================
+    # DINING ROOM PAGE
+    # ===========================================================================
+    # [Ceiling]  [Table]    [ ]
+    # [ ]        [ ]        [ ]
+    # [← Back]   [ ]        [ ]
+    # ===========================================================================
+    - id: dining_room_page
+      layout:
+        type: grid
+        grid_columns: [fr(1), fr(1), fr(1)]
+        grid_rows: [fr(1), fr(1), fr(1)]
+      scrollbar_mode: "off"
+      width: 100%
+      bg_color: Black
+      bg_opa: cover
+      pad_top: 34
+      pad_bottom: 5
+      pad_left: 5
+      pad_right: 5
+
+      widgets:
+
+        # [0,0] Ceiling Lights (Z-Wave dimmer)
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: true
+            id: dr_ceiling_lights_btn
+            styles: control
+            grid_cell_column_pos: 0
+            grid_cell_row_pos: 0
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $lightbulb
+              - label:
+                  align: bottom_left
+                  text: "Ceiling"
+            on_click:
+              - homeassistant.service:
+                  service: light.toggle
+                  data:
+                    entity_id: light.dining_room_ceiling_lights_node_5
+
+        # [1,0] Table Light (Z-Wave dimmer)
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: true
+            id: dr_table_light_btn
+            styles: control
+            grid_cell_column_pos: 1
+            grid_cell_row_pos: 0
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $nightlight
+              - label:
+                  align: bottom_left
+                  text: "Table"
+            on_click:
+              - homeassistant.service:
+                  service: light.toggle
+                  data:
+                    entity_id: light.dining_room_table_light_node_6
+
+        # [0,2] ← Back to Home
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: false
+            id: dr_back_btn
+            styles: control
+            grid_cell_column_pos: 0
+            grid_cell_row_pos: 2
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $chevron_left
+              - label:
+                  align: bottom_left
+                  text: "Back"
+            on_click:
+              - lvgl.page.show: main_page
+
+    # ===========================================================================
+    # LISA'S OFFICE PAGE
+    # ===========================================================================
+    - id: lisas_office_page
+      layout:
+        type: grid
+        grid_columns: [fr(1), fr(1), fr(1)]
+        grid_rows: [fr(1), fr(1), fr(1)]
+      scrollbar_mode: "off"
+      width: 100%
+      bg_color: Black
+      bg_opa: cover
+      pad_top: 34
+      pad_bottom: 5
+      pad_left: 5
+      pad_right: 5
+
+      widgets:
+
+        # [0,0] Office Light (Kasa smart switch)
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: true
+            id: lo_light_btn
+            styles: control
+            grid_cell_column_pos: 0
+            grid_cell_row_pos: 0
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $lightbulb
+              - label:
+                  align: bottom_left
+                  text: "Light"
+            on_click:
+              - homeassistant.service:
+                  service: light.toggle
+                  data:
+                    entity_id: light.lisas_office_light
+
+        # [0,2] ← Back to Home
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: false
+            id: lo_back_btn
+            styles: control
+            grid_cell_column_pos: 0
+            grid_cell_row_pos: 2
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $chevron_left
+              - label:
+                  align: bottom_left
+                  text: "Back"
+            on_click:
+              - lvgl.page.show: main_page

@@ -141,6 +141,79 @@ sensor:
             return (int)roundf(cur < tgt ? cur : tgt);
 
   # ---------------------------------------------------------------------------
+  # Kitchen Thermostat Current Temperature
+  # ---------------------------------------------------------------------------
+  - platform: homeassistant
+    entity_id: climate.kitchen
+    id: kt_thermostat_current_temp
+    attribute: current_temperature
+    on_value:
+      - lvgl.label.update:
+          id: kt_therm_current_value
+          text:
+            format: "%.0f°F"
+            args: [ 'x' ]
+      - lvgl.arc.update:
+          id: kt_therm_current_arc
+          value: !lambda return (int)roundf(x);
+      - lvgl.arc.update:
+          id: kt_therm_delta_arc
+          value: !lambda |-
+            float cur = x;
+            float tgt = cur;
+            if (id(kt_thermostat_target_temp).has_state()) {
+              tgt = id(kt_thermostat_target_temp).state;
+            }
+            return (int)roundf(cur > tgt ? cur : tgt);
+      - lvgl.arc.update:
+          id: kt_therm_mask_arc
+          value: !lambda |-
+            float cur = x;
+            float tgt = cur;
+            if (id(kt_thermostat_target_temp).has_state()) {
+              tgt = id(kt_thermostat_target_temp).state;
+            }
+            return (int)roundf(cur < tgt ? cur : tgt);
+
+  # ---------------------------------------------------------------------------
+  # Kitchen Thermostat Target Temperature
+  # ---------------------------------------------------------------------------
+  - platform: homeassistant
+    entity_id: climate.kitchen
+    id: kt_thermostat_target_temp
+    attribute: temperature
+    on_value:
+      - lvgl.label.update:
+          id: kt_therm_target_label
+          text:
+            format: "%.0f°F"
+            args: [ 'x' ]
+      - lvgl.arc.update:
+          id: kt_therm_track_arc
+          value: !lambda return (int)roundf(x);
+      - lvgl.arc.update:
+          id: kt_therm_target_arc
+          value: !lambda return (int)roundf(x);
+      - lvgl.arc.update:
+          id: kt_therm_delta_arc
+          value: !lambda |-
+            float tgt = x;
+            float cur = tgt;
+            if (id(kt_thermostat_current_temp).has_state()) {
+              cur = id(kt_thermostat_current_temp).state;
+            }
+            return (int)roundf(cur > tgt ? cur : tgt);
+      - lvgl.arc.update:
+          id: kt_therm_mask_arc
+          value: !lambda |-
+            float tgt = x;
+            float cur = tgt;
+            if (id(kt_thermostat_current_temp).has_state()) {
+              cur = id(kt_thermostat_current_temp).state;
+            }
+            return (int)roundf(cur < tgt ? cur : tgt);
+
+  # ---------------------------------------------------------------------------
   # Ceiling Fan Speed (percentage)
   # ---------------------------------------------------------------------------
   # Source:    fan.family_room_ceiling_fan (attribute: percentage)
@@ -176,7 +249,7 @@ sensor:
 text_sensor:
 
   # ---------------------------------------------------------------------------
-  # Thermostat HVAC Action
+  # Family Room Thermostat HVAC Action
   # ---------------------------------------------------------------------------
   # Source:    climate.family_room_thermostat (attribute: hvac_action)
   # Updates:   fr_therm_mode_label on the thermostat page
@@ -189,6 +262,24 @@ text_sensor:
     on_value:
       - lvgl.label.update:
           id: fr_therm_mode_label
+          text: !lambda |-
+            if (x == "heating") return "Heating";
+            if (x == "cooling") return "Cooling";
+            if (x == "idle") return "Idle";
+            if (x == "off") return "Off";
+            if (x == "fan") return "Fan";
+            return x.c_str();
+
+  # ---------------------------------------------------------------------------
+  # Kitchen Thermostat HVAC Action
+  # ---------------------------------------------------------------------------
+  - platform: homeassistant
+    entity_id: climate.kitchen
+    id: kt_thermostat_hvac_action
+    attribute: hvac_action
+    on_value:
+      - lvgl.label.update:
+          id: kt_therm_mode_label
           text: !lambda |-
             if (x == "heating") return "Heating";
             if (x == "cooling") return "Cooling";
@@ -311,5 +402,116 @@ binary_sensor:
       then:
         lvgl.widget.update:
           id: fr_thermostat_btn
+          state:
+            checked: !lambda return x;
+
+  # ===========================================================================
+  # KITCHEN BINARY SENSORS
+  # ===========================================================================
+
+  - platform: homeassistant
+    id: kt_ceiling_lights_state
+    entity_id: light.kitchen_lights
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        lvgl.widget.update:
+          id: kt_ceiling_lights_btn
+          state:
+            checked: !lambda return x;
+
+  - platform: homeassistant
+    id: kt_leds_state
+    entity_id: light.kitchen_leds
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        lvgl.widget.update:
+          id: kt_leds_btn
+          state:
+            checked: !lambda return x;
+
+  - platform: homeassistant
+    id: kt_cabinet_leds_state
+    entity_id: light.kitchen_cabinet_leds
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        lvgl.widget.update:
+          id: kt_cabinet_leds_btn
+          state:
+            checked: !lambda return x;
+
+  - platform: homeassistant
+    id: kt_island_state
+    entity_id: light.wled_kitchen_island
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        lvgl.widget.update:
+          id: kt_island_btn
+          state:
+            checked: !lambda return x;
+
+  - platform: homeassistant
+    id: kt_hall_state
+    entity_id: light.kitchen_hall_light
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        lvgl.widget.update:
+          id: kt_hall_btn
+          state:
+            checked: !lambda return x;
+
+  - platform: homeassistant
+    id: kt_thermostat_state
+    entity_id: climate.kitchen
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        lvgl.widget.update:
+          id: kt_thermostat_btn
+          state:
+            checked: !lambda return x;
+
+  # ===========================================================================
+  # DINING ROOM BINARY SENSORS
+  # ===========================================================================
+
+  - platform: homeassistant
+    id: dr_ceiling_lights_state
+    entity_id: light.dining_room_ceiling_lights_node_5
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        lvgl.widget.update:
+          id: dr_ceiling_lights_btn
+          state:
+            checked: !lambda return x;
+
+  - platform: homeassistant
+    id: dr_table_light_state
+    entity_id: light.dining_room_table_light_node_6
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        lvgl.widget.update:
+          id: dr_table_light_btn
+          state:
+            checked: !lambda return x;
+
+  # ===========================================================================
+  # LISA'S OFFICE BINARY SENSORS
+  # ===========================================================================
+
+  - platform: homeassistant
+    id: lo_light_state
+    entity_id: light.lisas_office_light
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        lvgl.widget.update:
+          id: lo_light_btn
           state:
             checked: !lambda return x;
