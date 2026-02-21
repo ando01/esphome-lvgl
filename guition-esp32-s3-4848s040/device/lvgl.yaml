@@ -1363,7 +1363,7 @@ lvgl:
                         data:
                           entity_id: climate.all_thermostats
                           hvac_mode: heat
-                          temperature: !lambda return (float)x / 2.0f;
+                          temperature: !lambda return ((float)x / 2.0f) * 9.0f / 5.0f + 32.0f;
 
               # Mode label
               - label:
@@ -1438,7 +1438,7 @@ lvgl:
                           hvac_mode: heat
                           temperature: !lambda |-
                             if (id(heating_target_temperature).has_state()) {
-                              return id(heating_target_temperature).state - 0.5f;
+                              return id(heating_target_temperature).state - 1.0f;
                             }
                             return 0.0f;
 
@@ -1468,6 +1468,6 @@ lvgl:
                           hvac_mode: heat
                           temperature: !lambda |-
                             if (id(heating_target_temperature).has_state()) {
-                              return id(heating_target_temperature).state + 0.5f;
+                              return id(heating_target_temperature).state + 1.0f;
                             }
                             return 0.0f;

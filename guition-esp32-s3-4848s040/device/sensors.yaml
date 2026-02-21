@@ -209,17 +209,17 @@ sensor:
           id: heating_lab_current_value
           text:
             format: "%.1f°C"
-            args: [ 'x' ]
+            args: [ '(x - 32.0f) * 5.0f / 9.0f' ]
       - lvgl.arc.update:
           id: heating_current_arc
-          value: !lambda return (int)roundf(x * 2.0f);
+          value: !lambda return (int)roundf((x - 32.0f) * 5.0f / 9.0f * 2.0f);
       - lvgl.arc.update:
           id: heating_delta_arc
           value: !lambda |-
-            float cur = x;
+            float cur = (x - 32.0f) * 5.0f / 9.0f;
             float tgt = cur;
             if (id(heating_target_temperature).has_state()) {
-              tgt = id(heating_target_temperature).state;
+              tgt = (id(heating_target_temperature).state - 32.0f) * 5.0f / 9.0f;
             }
             int cur_v = (int)roundf(cur * 2.0f);
             int tgt_v = (int)roundf(tgt * 2.0f);
@@ -227,10 +227,10 @@ sensor:
       - lvgl.arc.update:
           id: heating_mask_arc
           value: !lambda |-
-            float cur = x;
+            float cur = (x - 32.0f) * 5.0f / 9.0f;
             float tgt = cur;
             if (id(heating_target_temperature).has_state()) {
-              tgt = id(heating_target_temperature).state;
+              tgt = (id(heating_target_temperature).state - 32.0f) * 5.0f / 9.0f;
             }
             int cur_v = (int)roundf(cur * 2.0f);
             int tgt_v = (int)roundf(tgt * 2.0f);
@@ -258,20 +258,20 @@ sensor:
           id: heating_lab_target_label
           text:
             format: "%.1f°C"
-            args: [ 'x' ]
+            args: [ '(x - 32.0f) * 5.0f / 9.0f' ]
       - lvgl.arc.update:
           id: heating_track_arc
-          value: !lambda return (int)roundf(x * 2.0f);
+          value: !lambda return (int)roundf((x - 32.0f) * 5.0f / 9.0f * 2.0f);
       - lvgl.arc.update:
           id: heating_target_dot_arc
-          value: !lambda return (int)roundf(x * 2.0f);
+          value: !lambda return (int)roundf((x - 32.0f) * 5.0f / 9.0f * 2.0f);
       - lvgl.arc.update:
           id: heating_delta_arc
           value: !lambda |-
-            float tgt = x;
+            float tgt = (x - 32.0f) * 5.0f / 9.0f;
             float cur = tgt;
             if (id(heating_current_temperature).has_state()) {
-              cur = id(heating_current_temperature).state;
+              cur = (id(heating_current_temperature).state - 32.0f) * 5.0f / 9.0f;
             }
             int cur_v = (int)roundf(cur * 2.0f);
             int tgt_v = (int)roundf(tgt * 2.0f);
@@ -279,10 +279,10 @@ sensor:
       - lvgl.arc.update:
           id: heating_mask_arc
           value: !lambda |-
-            float tgt = x;
+            float tgt = (x - 32.0f) * 5.0f / 9.0f;
             float cur = tgt;
             if (id(heating_current_temperature).has_state()) {
-              cur = id(heating_current_temperature).state;
+              cur = (id(heating_current_temperature).state - 32.0f) * 5.0f / 9.0f;
             }
             int cur_v = (int)roundf(cur * 2.0f);
             int tgt_v = (int)roundf(tgt * 2.0f);
