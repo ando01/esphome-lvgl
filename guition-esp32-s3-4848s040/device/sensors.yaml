@@ -645,7 +645,7 @@ binary_sensor:
             checked: !lambda return x;
 
   # ---------------------------------------------------------------------------
-  # All Thermostats Mode (on/off state for the family room page button)
+  # All Thermostats Mode (on/off state — drives buttons on all room pages)
   # ---------------------------------------------------------------------------
   - platform: homeassistant
     id: at_thermostat_state
@@ -653,10 +653,14 @@ binary_sensor:
     trigger_on_initial_state: true
     on_state:
       then:
-        lvgl.widget.update:
-          id: fr_all_thermostats_btn
-          state:
-            checked: !lambda return x;
+        - lvgl.widget.update:
+            id: fr_all_thermostats_btn
+            state:
+              checked: !lambda return x;
+        - lvgl.widget.update:
+            id: kt_all_thermostats_btn
+            state:
+              checked: !lambda return x;
 
   # ===========================================================================
   # KITCHEN BINARY SENSORS

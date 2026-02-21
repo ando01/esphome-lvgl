@@ -1194,9 +1194,9 @@ lvgl:
     # ===========================================================================
     # KITCHEN PAGE - Main Controls (3x3 grid)
     # ===========================================================================
-    # [Lights]   [LEDs]       [Cabinets]
-    # [Island]   [Thermostat] [Hall]
-    # [← Back]   [ ]          [ ]
+    # [Lights]   [LEDs]              [Cabinets]
+    # [Island]   [Thermostat →]      [Hall]
+    # [← Back]   [All Thermostats →] [All Lights Off]
     # ===========================================================================
     - id: kitchen_page
       layout:
@@ -1368,6 +1368,49 @@ lvgl:
                   text: "Back"
             on_click:
               - lvgl.page.show: main_page
+
+        # [1,2] ALL THERMOSTATS  →  all thermostats control page
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: true
+            id: kt_all_thermostats_btn
+            styles: control
+            grid_cell_column_pos: 1
+            grid_cell_row_pos: 2
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $thermometer
+              - label:
+                  align: bottom_left
+                  text: "All Thermostats"
+            on_click:
+              - lvgl.page.show: all_thermostats_page
+
+        # [2,2] ALL LIGHTS OFF
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: false
+            id: kt_all_lights_off_btn
+            styles: control
+            grid_cell_column_pos: 2
+            grid_cell_row_pos: 2
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $lightbulb
+              - label:
+                  align: bottom_left
+                  text: "All Lights Off"
+            on_click:
+              - homeassistant.service:
+                  service: light.turn_off
+                  data:
+                    entity_id: all
 
     # ===========================================================================
     # KITCHEN THERMOSTAT PAGE - Circular arc temperature control
