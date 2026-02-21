@@ -201,7 +201,7 @@ sensor:
   #   lvgl.yaml → heating_lab_current_label, heating_current_arc
   # ===========================================================================
   - platform: homeassistant
-    entity_id: climate.office_radiator_thermostat
+    entity_id: climate.all_thermostats
     id: heating_current_temperature
     attribute: current_temperature
     on_value:
@@ -250,7 +250,7 @@ sensor:
   #   lvgl.yaml → heating_lab_target_label, heating_target_arc
   # ===========================================================================
   - platform: homeassistant
-    entity_id: climate.office_radiator_thermostat
+    entity_id: climate.all_thermostats
     id: heating_target_temperature
     attribute: temperature
     on_value:
@@ -307,7 +307,7 @@ text_sensor:
   #   lvgl.yaml → heating_lab_mode_label
   # ===========================================================================
   - platform: homeassistant
-    entity_id: climate.office_radiator_thermostat
+    entity_id: climate.all_thermostats
     id: heating_hvac_action
     attribute: hvac_action
     on_value:
