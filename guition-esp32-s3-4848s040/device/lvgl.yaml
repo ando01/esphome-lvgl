@@ -1,44 +1,29 @@
 # =============================================================================
-# LVGL TOUCHSCREEN INTERFACE
+# LVGL TOUCHSCREEN INTERFACE - Family Room Dashboard
 # =============================================================================
-# This file defines the graphical user interface (GUI) for the ESP32 touchscreen
-# display. It creates buttons that control smart home devices through Home Assistant.
+# PAGES:
+#   main_page            - Home screen with room navigation buttons
+#   family_room_page     - Family Room controls (3x3 grid)
+#   family_room_fan_page - Fan speed controls sub-page
 #
 # HOW IT WORKS:
-# - Each button sends a command to Home Assistant when pressed (on_press/on_click)
-# - Buttons receive state updates from sensors defined in sensors.yaml
-# - When a sensor changes, the button's appearance updates (checked/unchecked)
-#
-# KEY CONCEPTS:
-# - "id:" is a unique name used to reference this element from other files
-# - "entity_id:" refers to a device/entity in Home Assistant
-# - "checkable: true" means the button shows on/off state visually
-# - "$variable" values (like $button_width) are defined in template.yaml
-# - Sensors in sensors.yaml watch Home Assistant and update button states
+#   - Buttons send commands to Home Assistant when pressed (on_click)
+#   - Button states (highlighted/dimmed) are updated by sensors in sensors.yaml
+#   - The top layer shows time and temp/humidity on every page
 # =============================================================================
 
 lvgl:
   buffer_size: 100%
   top_layer:
     widgets:
-    
+
       # =========================================================================
-      # TEMPERATURE DISPLAY (Top-left corner of screen)
-      # =========================================================================
-      # WHAT IT SHOWS:
-      #   Displays two temperatures: "outdoor° / indoor°"
-      #   Example: "15° / 22°" means 15°C outside, 22°C in the office
-      #
-      # WHERE THE DATA COMES FROM (defined in sensors.yaml):
-      #   - Left number: sensor.outdoor_temperature (weather/outdoor sensor)
-      #   - Right number: sensor.office_temperature (indoor room sensor)
-      #
-      # HOW IT UPDATES:
-      #   When either temperature sensor changes in Home Assistant, the
-      #   sensors.yaml file triggers an update to this label's text.
+      # TEMP & HUMIDITY (Top-left)
+      # Shows: "72°F / 45%"
+      # Updated by: fr_room_temperature and fr_room_humidity sensors
       # =========================================================================
       - label:
-          text: "-° / -°"
+          text: "--°F / --%"
           id: temperatures
           styles: roboto15_style
           align: top_left
@@ -47,14 +32,8 @@ lvgl:
           text_color: 0xFFFFFF
 
       # =========================================================================
-      # CLOCK DISPLAY (Top-center of screen)
-      # =========================================================================
-      # WHAT IT SHOWS:
-      #   Current time in 24-hour format (e.g., "14:30")
-      #
-      # WHERE THE DATA COMES FROM:
-      #   The time component (configured in addon/time.yaml) syncs with
-      #   Home Assistant's time and updates this label every minute.
+      # CLOCK (Top-center)
+      # Shows: "14:30" (updated every minute by addon/time.yaml)
       # =========================================================================
       - label:
           text: "--:--"
@@ -65,415 +44,70 @@ lvgl:
           y: 4
           text_align: center
           text_color: 0xFFFFFF
-          
+
   pages:
+
+    # ===========================================================================
+    # HOME PAGE - Room Navigation
+    # ===========================================================================
+    # Tap a room button to navigate into that room's control page.
+    # Add more room buttons here as you expand to other rooms.
+    # ===========================================================================
     - id: main_page
-      layout: 
-        type: grid
-        grid_columns: [fr(1), fr(1), fr(1)]
-        grid_rows: [fr(1), fr(1), fr(1)]
+      layout:
+        type: flex
+        flex_flow: row_wrap
       scrollbar_mode: "off"
-      scroll_dir: "hor"
       width: 100%
       bg_color: Black
       bg_opa: cover
-      pad_top: 34
+      pad_top: 39
       pad_bottom: 5
       pad_left: 5
       pad_right: 5
-      
+
       widgets:
-      
-        # =========================================================================
-        # BUTTON: Features Scene
-        # =========================================================================
-        # WHAT THIS BUTTON DOES:
-        #   Activates the "Features" lighting scene - a preset that turns on
-        #   LED strip accent lighting for a decorative effect.
-        #
-        # WHEN PRESSED:
-        #   Calls Home Assistant service: switch.toggle
-        #   Target: switch.office_features_stateful_scene
-        #
-        # HOW THE BUTTON KNOWS IF IT'S ACTIVE:
-        #   sensors.yaml monitors: switch.office_features_stateful_scene
-        #   When that sensor is ON, this button appears "checked" (highlighted)
-        #   When that sensor is OFF, this button appears unchecked (dimmed)
-        # =========================================================================
-        - button: 
-            height: $button_height_single
-            width: $button_width
-            checkable: true
-            id: office_scene_features_button
-            styles: control
-            grid_cell_column_pos: 0
-            grid_cell_row_pos: 0
-            widgets:
-              - label:
-                  text_font: $icon_font
-                  align: top_left
-                  id: scene_features_icon                
-                  text: $ledstrip
-              - label:
-                  align: bottom_left
-                  id: scene_features_label
-                  text: "Features"
-            on_press:
-              - homeassistant.service:
-                  service: switch.toggle
-                  data:
-                    entity_id: switch.office_features_stateful_scene
 
-        # =========================================================================
-        # BUTTON: Calls Scene
-        # =========================================================================
-        # WHAT THIS BUTTON DOES:
-        #   Activates the "Calls" lighting scene - optimized lighting for
-        #   video calls (good front lighting, reduced background glare).
-        #
-        # WHEN PRESSED:
-        #   Calls Home Assistant service: switch.toggle
-        #   Target: switch.office_calls_stateful_scene
-        #
-        # HOW THE BUTTON KNOWS IF IT'S ACTIVE:
-        #   sensors.yaml monitors: switch.office_calls_stateful_scene
-        #   When that sensor is ON, this button appears "checked" (highlighted)
-        # =========================================================================
-        - button: 
-            height: $button_height_single
-            width: $button_width
-            checkable: true
-            id: office_scene_calls_button
-            styles: control
-            grid_cell_column_pos: 1
-            grid_cell_row_pos: 0
-            widgets:
-              - label:
-                  text_font: $icon_font
-                  align: top_left
-                  id: office_scene_calls_icon                
-                  text: $videocall
-              - label:
-                  align: bottom_left
-                  id: office_scene_calls_label
-                  text: "Calls"
-            on_press:
-              - homeassistant.service:
-                  service: switch.toggle
-                  data:
-                    entity_id: switch.office_calls_stateful_scene
-
-        # =========================================================================
-        # BUTTON: Evening Scene
-        # =========================================================================
-        # WHAT THIS BUTTON DOES:
-        #   Activates the "Evening" lighting scene - warm, ambient lighting
-        #   for relaxed evening use (lower brightness, warmer colors).
-        #
-        # WHEN PRESSED:
-        #   Calls Home Assistant service: switch.toggle
-        #   Target: switch.office_evening_stateful_scene
-        #
-        # HOW THE BUTTON KNOWS IF IT'S ACTIVE:
-        #   sensors.yaml monitors: switch.office_evening_stateful_scene
-        #   When that sensor is ON, this button appears "checked" (highlighted)
-        # =========================================================================
-        - button: 
-            height: $button_height_single
-            width: $button_width
-            checkable: true
-            id: office_scene_evening_button
-            styles: control
-            grid_cell_column_pos: 2
-            grid_cell_row_pos: 0
-            widgets:
-              - label:
-                  text_font: $icon_font
-                  align: top_left
-                  id: office_scene_evening_icon                
-                  text: $nightlight
-              - label:
-                  align: bottom_left
-                  id: office_scene_evening_label
-                  text: "Evening"
-            on_press:
-              - homeassistant.service:
-                  service: switch.toggle
-                  data:
-                    entity_id: switch.office_evening_stateful_scene
-
-        # =========================================================================
-        # BUTTON: Dimmed Scene
-        # =========================================================================
-        # WHAT THIS BUTTON DOES:
-        #   Activates the "Dimmed" lighting scene - very low light levels,
-        #   useful for watching movies or reducing eye strain at night.
-        #
-        # WHEN PRESSED:
-        #   Calls Home Assistant service: switch.toggle
-        #   Target: switch.office_dimmed_stateful_scene
-        #
-        # HOW THE BUTTON KNOWS IF IT'S ACTIVE:
-        #   sensors.yaml monitors: switch.office_dimmed_stateful_scene
-        #   When that sensor is ON, this button appears "checked" (highlighted)
-        # =========================================================================
-        - button: 
-            height: $button_height_single
-            width: $button_width
-            checkable: true
-            id: office_scene_dimmed_button
-            styles: control
-            grid_cell_column_pos: 0
-            grid_cell_row_pos: 1
-            widgets:
-              - label:
-                  text_font: $icon_font
-                  align: top_left
-                  id: office_scene_dimmed_icon                
-                  text: $nightlight
-              - label:
-                  align: bottom_left
-                  id: office_scene_dimmed_label
-                  text: "Dimmed"
-            on_press:
-              - homeassistant.service:
-                  service: switch.toggle
-                  data:
-                    entity_id: switch.office_dimmed_stateful_scene
-
-        # =========================================================================
-        # BUTTON: Blinds (Open Blind Controls Page)
-        # =========================================================================
-        # WHAT THIS BUTTON DOES:
-        #   Navigates to the dedicated blinds control page.
-        # =========================================================================
-        - button: 
-            height: $button_height_single
-            width: $button_width
-            checkable: false
-            id: blinds_nav_button
-            styles: control
-            grid_cell_column_pos: 1
-            grid_cell_row_pos: 1
-            widgets:
-              - label:
-                  text_font: $icon_font
-                  align: top_left
-                  text: $blinds_closed
-              - label:
-                  align: bottom_left
-                  text: "Blinds"
-            on_click:
-              - lvgl.page.show: blinds_page
-
-
-        # =========================================================================
-        # BUTTON: 3D Printer Power
-        # =========================================================================
-        # WHAT THIS BUTTON DOES:
-        #   Turns the 3D printer's power outlet on or off.
-        #   This controls a smart plug that supplies power to the printer.
-        #
-        # WHEN PRESSED:
-        #   Calls Home Assistant service: switch.toggle
-        #   Target: switch.office_3d_printer_power
-        #   (Toggle means: if ON, turn OFF. If OFF, turn ON.)
-        #
-        # HOW THE BUTTON KNOWS IF IT'S ACTIVE:
-        #   sensors.yaml monitors: switch.office_3d_printer_power
-        #   When the switch is ON, this button appears "checked" (highlighted)
-        #   When the switch is OFF, this button appears unchecked (dimmed)
-        # =========================================================================
-        - button: 
-            height: $button_height_single
-            width: $button_width
-            checkable: true
-            id: printer_power_button
-            styles: control
-            grid_cell_column_pos: 2
-            grid_cell_row_pos: 1
-            widgets:
-              # Icon (shown when OFF)
-              - label:
-                  text_font: $icon_font
-                  align: top_left
-                  id: printer_power_icon
-                  text: $printer
-              # Progress (shown when ON)
-              - obj:
-                  align: top_left
-                  id: print_progress_container
-                  height: SIZE_CONTENT
-                  width: SIZE_CONTENT
-                  clickable: false
-                  layout:
-                    type: flex
-                    flex_flow: row
-                    flex_align_cross: end
-                  bg_opa: TRANSP
-                  border_width: 0
-                  pad_all: 0
-                  hidden: true
-                  widgets:
-                    - label:
-                        text_font: roboto44_font
-                        text_color: 0xFFFFFF
-                        id: print_progress_label
-                        text: "--"
-                    - label:
-                        text_font: roboto17_font
-                        text_color: 0xFFFFFF
-                        text: "%"
-              - label:
-                  align: bottom_left
-                  id: printer_power_label
-                  text: "Printer"
-            on_click:
-              - homeassistant.service:
-                  service: switch.toggle
-                  data:
-                    entity_id: switch.office_3d_printer_power
-
-        # =========================================================================
-        # BUTTON: Filament Dryer
-        # =========================================================================
-        # WHAT THIS BUTTON DOES:
-        #   Turns the filament dryer/heater on or off.
-        #   This device removes moisture from 3D printer filament to improve
-        #   print quality (wet filament causes bubbles and weak prints).
-        #
-        # WHEN PRESSED:
-        #   Calls Home Assistant service: switch.toggle
-        #   Target: switch.office_filament_heater_893b
-        #   (The "893b" is a device identifier from the smart plug)
-        #
-        # HOW THE BUTTON KNOWS IF IT'S ACTIVE:
-        #   sensors.yaml monitors: switch.office_filament_heater_893b
-        #   When the switch is ON, this button appears "checked" (highlighted)
-        #   When the switch is OFF, this button appears unchecked (dimmed)
-        # =========================================================================
-        - button: 
-            height: $button_height_single
-            width: $button_width
-            checkable: true
-            id: filament_heater_button
-            styles: control
-            grid_cell_column_pos: 0
-            grid_cell_row_pos: 2
-            widgets:
-              # Icon (shown when OFF)
-              - label:
-                  text_font: $icon_font
-                  align: top_left
-                  id: filament_heater_icon
-                  text: $filament
-              # Humidity (shown when ON)
-              - obj:
-                  align: top_left
-                  id: dryer_humidity_container
-                  height: SIZE_CONTENT
-                  width: SIZE_CONTENT
-                  clickable: false
-                  layout:
-                    type: flex
-                    flex_flow: row
-                    flex_align_cross: end
-                  bg_opa: TRANSP
-                  border_width: 0
-                  pad_all: 0
-                  hidden: true
-                  widgets:
-                    - label:
-                        text_font: roboto44_font
-                        text_color: 0xFFFFFF
-                        id: dryer_humidity_label
-                        text: "--"
-                    - label:
-                        text_font: roboto17_font
-                        text_color: 0xFFFFFF
-                        text: "%"
-              - label:
-                  align: bottom_left
-                  id: filament_heater_label
-                  text: "Dryer"
-            on_click:
-              - homeassistant.service:
-                  service: switch.toggle
-                  data:
-                    entity_id: switch.office_filament_heater_893b
-
-        # =========================================================================
-        # BUTTON: Air Conditioner
-        # =========================================================================
-        # WHAT THIS BUTTON DOES:
-        #   Opens the air conditioner control page.
-        #
-        # WHEN PRESSED:
-        #   Navigates to the aircon controls page.
-        #
-        # HOW THE BUTTON KNOWS IF IT'S ACTIVE:
-        #   sensors.yaml monitors: switch.office_air_conditioner
-        #   When the AC is running, this button appears "checked" (highlighted)
-        #   When the AC is off, this button appears unchecked (dimmed)
-        # =========================================================================
-        - button: 
-            height: $button_height_single
-            width: $button_width
-            checkable: true
-            id: office_aircon_button
-            styles: control
-            grid_cell_column_pos: 1
-            grid_cell_row_pos: 2
-            widgets:
-              - label:
-                  text_font: $icon_font
-                  align: top_left
-                  text: $aircon
-              - label:
-                  align: bottom_left
-                  text: "Aircon"
-            on_click:
-              - lvgl.page.show: aircon_page
-              - lvgl.widget.update:
-                  id: office_aircon_button
-                  state:
-                    checked: !lambda return id(office_air_conditioner).state;
-
-        # =========================================================================
-        # BUTTON: More
-        # =========================================================================
-        # WHAT THIS BUTTON DOES:
-        #   Opens the additional controls page.
-        #
-        # WHEN PRESSED:
-        #   Navigates to the extras page.
-        # =========================================================================
+        # -----------------------------------------------------------------------
+        # BUTTON: Family Room
+        # -----------------------------------------------------------------------
         - button:
             height: $button_height_single
             width: $button_width
             checkable: false
-            id: extras_nav_button
+            id: family_room_nav_btn
             styles: control
-            grid_cell_column_pos: 2
-            grid_cell_row_pos: 2
             widgets:
               - label:
                   text_font: $icon_font
                   align: top_left
-                  text: $chevron_left
+                  text: $home
               - label:
                   align: bottom_left
-                  text: "More"
+                  text: "Family Room"
             on_click:
-              - lvgl.page.show: extras_page
+              - lvgl.page.show: family_room_page
 
-    - id: extras_page
+        # Add more room buttons here when you expand to other rooms:
+        # - button:
+        #     ...
+        #     text: "Kitchen"
+        #     on_click:
+        #       - lvgl.page.show: kitchen_page
+
+    # ===========================================================================
+    # FAMILY ROOM PAGE - Main Controls (3x3 grid)
+    # ===========================================================================
+    # [Ceiling]  [Lamps]    [Fireplace]
+    # [Fan →]    [LG TV]    [Xmas Tree]
+    # [← Back]   [ ]        [ ]
+    # ===========================================================================
+    - id: family_room_page
       layout:
         type: grid
         grid_columns: [fr(1), fr(1), fr(1)]
         grid_rows: [fr(1), fr(1), fr(1)]
       scrollbar_mode: "off"
-      scroll_dir: "hor"
       width: 100%
       bg_color: Black
       bg_opa: cover
@@ -484,14 +118,16 @@ lvgl:
 
       widgets:
 
-        # =========================================================================
-        # BUTTON: Back (Return to Main Page)
-        # =========================================================================
+        # -----------------------------------------------------------------------
+        # [0,0] CEILING LIGHTS
+        # Toggles: light.family_room_ceiling_lights
+        # State:   fr_ceiling_lights_state (sensors.yaml)
+        # -----------------------------------------------------------------------
         - button:
             height: $button_height_single
             width: $button_width
-            checkable: false
-            id: extras_back_button
+            checkable: true
+            id: fr_ceiling_lights_btn
             styles: control
             grid_cell_column_pos: 0
             grid_cell_row_pos: 0
@@ -499,21 +135,26 @@ lvgl:
               - label:
                   text_font: $icon_font
                   align: top_left
-                  text: $chevron_left
+                  text: $lightbulb
               - label:
                   align: bottom_left
-                  text: "Back"
+                  text: "Ceiling"
             on_click:
-              - lvgl.page.show: main_page
+              - homeassistant.service:
+                  service: light.toggle
+                  data:
+                    entity_id: light.family_room_ceiling_lights
 
-        # =========================================================================
-        # BUTTON: Heating Thermostat (Lab Layout)
-        # =========================================================================
+        # -----------------------------------------------------------------------
+        # [1,0] LAMPS
+        # Toggles: light.family_room_lamps
+        # State:   fr_lamps_state (sensors.yaml)
+        # -----------------------------------------------------------------------
         - button:
             height: $button_height_single
             width: $button_width
-            checkable: false
-            id: heating_lab_nav_button
+            checkable: true
+            id: fr_lamps_btn
             styles: control
             grid_cell_column_pos: 1
             grid_cell_row_pos: 0
@@ -521,32 +162,26 @@ lvgl:
               - label:
                   text_font: $icon_font
                   align: top_left
-                  text: $aircon
+                  text: $nightlight
               - label:
                   align: bottom_left
-                  text: "Heat"
+                  text: "Lamps"
             on_click:
-              - lvgl.page.show: heating_lab_page
+              - homeassistant.service:
+                  service: light.toggle
+                  data:
+                    entity_id: light.family_room_lamps
 
-        # =========================================================================
-        # BUTTON: Battery Charger
-        # =========================================================================
-        # WHAT THIS BUTTON DOES:
-        #   Toggles the battery charger's smart plug.
-        #
-        # WHEN PRESSED:
-        #   Calls Home Assistant service: switch.toggle
-        #   Target: switch.d4c5
-        #
-        # HOW THE BUTTON KNOWS IF IT'S ACTIVE:
-        #   sensors.yaml monitors: switch.d4c5
-        #   When the switch is ON, this button appears "checked" (highlighted)
-        # =========================================================================
+        # -----------------------------------------------------------------------
+        # [2,0] FIREPLACE LIGHTS
+        # Toggles: light.family_room_fireplace_lights
+        # State:   fr_fireplace_state (sensors.yaml)
+        # -----------------------------------------------------------------------
         - button:
             height: $button_height_single
             width: $button_width
             checkable: true
-            id: battery_charger_button
+            id: fr_fireplace_btn
             styles: control
             grid_cell_column_pos: 2
             grid_cell_row_pos: 0
@@ -554,37 +189,26 @@ lvgl:
               - label:
                   text_font: $icon_font
                   align: top_left
-                  id: battery_charger_icon
-                  text: $battery
+                  text: $fire
               - label:
                   align: bottom_left
-                  id: battery_charger_label
-                  text: "Charger"
+                  text: "Fireplace"
             on_click:
               - homeassistant.service:
-                  service: switch.toggle
+                  service: light.toggle
                   data:
-                    entity_id: switch.d4c5
+                    entity_id: light.family_room_fireplace_lights
 
-        # =========================================================================
-        # BUTTON: Storage Lights
-        # =========================================================================
-        # WHAT THIS BUTTON DOES:
-        #   Toggles the office storage area lights.
-        #
-        # WHEN PRESSED:
-        #   Calls Home Assistant service: light.toggle
-        #   Target: light.office_storage
-        #
-        # HOW THE BUTTON KNOWS IF IT'S ACTIVE:
-        #   sensors.yaml monitors: light.office_storage
-        #   When the light is ON, this button appears "checked" (highlighted)
-        # =========================================================================
+        # -----------------------------------------------------------------------
+        # [0,1] CEILING FAN  →  navigates to fan speed sub-page
+        # Shown orange when fan is on (any speed).
+        # State:   fr_fan_state (sensors.yaml)
+        # -----------------------------------------------------------------------
         - button:
             height: $button_height_single
             width: $button_width
             checkable: true
-            id: storage_lights_button
+            id: fr_fan_btn
             styles: control
             grid_cell_column_pos: 0
             grid_cell_row_pos: 1
@@ -592,37 +216,23 @@ lvgl:
               - label:
                   text_font: $icon_font
                   align: top_left
-                  id: storage_lights_icon
-                  text: $package
+                  text: $ceiling_fan
               - label:
                   align: bottom_left
-                  id: storage_lights_label
-                  text: "Storage"
+                  text: "Fan"
             on_click:
-              - homeassistant.service:
-                  service: light.toggle
-                  data:
-                    entity_id: light.office_storage
+              - lvgl.page.show: family_room_fan_page
 
-        # =========================================================================
-        # BUTTON: Network Rack Lights
-        # =========================================================================
-        # WHAT THIS BUTTON DOES:
-        #   Toggles the network rack lights.
-        #
-        # WHEN PRESSED:
-        #   Calls Home Assistant service: light.toggle
-        #   Target: light.office_network_rack
-        #
-        # HOW THE BUTTON KNOWS IF IT'S ACTIVE:
-        #   sensors.yaml monitors: light.office_network_rack
-        #   When the light is ON, this button appears "checked" (highlighted)
-        # =========================================================================
+        # -----------------------------------------------------------------------
+        # [1,1] LG TV
+        # Toggles: media_player.lg_family_room_tv
+        # State:   fr_tv_state (sensors.yaml)
+        # -----------------------------------------------------------------------
         - button:
             height: $button_height_single
             width: $button_width
             checkable: true
-            id: network_rack_button
+            id: fr_tv_btn
             styles: control
             grid_cell_column_pos: 1
             grid_cell_row_pos: 1
@@ -630,43 +240,54 @@ lvgl:
               - label:
                   text_font: $icon_font
                   align: top_left
-                  id: network_rack_icon
-                  text: $network
+                  text: $television
               - label:
                   align: bottom_left
-                  id: network_rack_label
-                  text: "Network Rack"
+                  text: "LG TV"
+            on_click:
+              - homeassistant.service:
+                  service: media_player.toggle
+                  data:
+                    entity_id: media_player.lg_family_room_tv
+
+        # -----------------------------------------------------------------------
+        # [2,1] CHRISTMAS TREE
+        # Toggles: light.indoor_xmas_tree_plug_indoor_xmas_tree_relay
+        # State:   fr_xmas_state (sensors.yaml)
+        # -----------------------------------------------------------------------
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: true
+            id: fr_xmas_btn
+            styles: control
+            grid_cell_column_pos: 2
+            grid_cell_row_pos: 1
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $pine_tree
+              - label:
+                  align: bottom_left
+                  text: "Xmas Tree"
             on_click:
               - homeassistant.service:
                   service: light.toggle
                   data:
-                    entity_id: light.office_network_rack
+                    entity_id: light.indoor_xmas_tree_plug_indoor_xmas_tree_relay
 
-    - id: blinds_page
-      layout: 
-        type: flex
-        flex_flow: column_wrap
-      scrollbar_mode: "off"
-      scroll_dir: "hor"
-      width: 100%
-      bg_color: Black
-      bg_opa: cover
-      pad_top: 34
-      pad_bottom: 5
-      pad_left: 5
-      pad_right: 5
-
-      widgets:
-
-        # =========================================================================
-        # BUTTON: Back (Return to Main Page)
-        # =========================================================================
-        - button: 
+        # -----------------------------------------------------------------------
+        # [0,2] BACK to Home
+        # -----------------------------------------------------------------------
+        - button:
             height: $button_height_single
             width: $button_width
             checkable: false
-            id: blinds_back_button
+            id: fr_back_btn
             styles: control
+            grid_cell_column_pos: 0
+            grid_cell_row_pos: 2
             widgets:
               - label:
                   text_font: $icon_font
@@ -678,533 +299,188 @@ lvgl:
             on_click:
               - lvgl.page.show: main_page
 
-        # =========================================================================
-        # BUTTON: Blind Open (100%)
-        # =========================================================================
-        # WHAT THIS BUTTON DOES:
-        #   Opens the office window blind completely (100% open position).
-        #   Maximum natural light enters the room.
-        #
-        # WHEN PRESSED:
-        #   Calls Home Assistant service: cover.set_cover_position
-        #   Target: cover.office_blind
-        #   Position: 100 (fully open)
-        #
-        # HOW THE BUTTON KNOWS IF IT'S ACTIVE:
-        #   sensors.yaml reads the blind's current position from Home Assistant.
-        #   A template sensor (office_blind_100) checks if position is within
-        #   3% of 100%. If true, this button appears "checked" (highlighted).
-        #   The 3% tolerance accounts for minor motor positioning differences.
-        # =========================================================================
-        - button: 
+        # -----------------------------------------------------------------------
+        # [1,2] THERMOSTAT  →  thermostat control page
+        # Shown orange when thermostat mode is not "off".
+        # State:   fr_thermostat_state (sensors.yaml)
+        # -----------------------------------------------------------------------
+        - button:
             height: $button_height_single
             width: $button_width
             checkable: true
-            id: office_blind_open_button
+            id: fr_thermostat_btn
             styles: control
+            grid_cell_column_pos: 1
+            grid_cell_row_pos: 2
             widgets:
               - label:
                   text_font: $icon_font
                   align: top_left
-                  text: $blinds_open
+                  text: $thermometer
               - label:
                   align: bottom_left
-                  text: "Open"
+                  text: "Thermostat"
             on_click:
-              - homeassistant.service:
-                  service: cover.set_cover_position
-                  data:
-                    entity_id: cover.office_blind
-                    position: "100"
+              - lvgl.page.show: family_room_thermostat_page
 
-        # =========================================================================
-        # BUTTON: Blind Semi Open (66%)
-        # =========================================================================
-        # WHAT THIS BUTTON DOES:
-        #   Sets the office window blind to 66% open position.
-        #   Allows good natural light while providing some shade.
-        #
-        # WHEN PRESSED:
-        #   Calls Home Assistant service: cover.set_cover_position
-        #   Target: cover.office_blind
-        #   Position: 66 (two-thirds open)
-        #
-        # HOW THE BUTTON KNOWS IF IT'S ACTIVE:
-        #   sensors.yaml reads the blind's current position from Home Assistant.
-        #   A template sensor (office_blind_66) checks if position is within
-        #   3% of 66%. If true, this button appears "checked" (highlighted).
-        # =========================================================================
-        - button: 
-            height: $button_height_single
-            width: $button_width
-            checkable: true
-            id: office_blind_66_button
-            styles: control
-            widgets:
-              - label:
-                  text_font: $icon_font
-                  align: top_left
-                  text: $blinds_open
-              - label:
-                  align: bottom_left
-                  text: "Semi Open"
-            on_click:
-              - homeassistant.service:
-                  service: cover.set_cover_position
-                  data:
-                    entity_id: cover.office_blind
-                    position: "66"
+        # [2,2] is empty - reserved for future Family Room controls
 
-        # =========================================================================
-        # BUTTON: Blind Semi Closed (33%)
-        # =========================================================================
-        # WHAT THIS BUTTON DOES:
-        #   Sets the office window blind to 33% open position.
-        #   Mostly closed but allows some light through.
-        #
-        # WHEN PRESSED:
-        #   Calls Home Assistant service: cover.set_cover_position
-        #   Target: cover.office_blind
-        #   Position: 33 (one-third open)
-        #
-        # HOW THE BUTTON KNOWS IF IT'S ACTIVE:
-        #   sensors.yaml reads the blind's current position from Home Assistant.
-        #   A template sensor (office_blind_33) checks if position is within
-        #   3% of 33%. If true, this button appears "checked" (highlighted).
-        # =========================================================================
-        - button: 
-            height: $button_height_single
-            width: $button_width
-            checkable: true
-            id: office_blind_33_button
-            styles: control
-            widgets:
-              - label:
-                  text_font: $icon_font
-                  align: top_left
-                  text: $blinds_open
-              - label:
-                  align: bottom_left
-                  text: "Semi Closed"
-            on_click:
-              - homeassistant.service:
-                  service: cover.set_cover_position
-                  data:
-                    entity_id: cover.office_blind
-                    position: "33"
-
-        # =========================================================================
-        # BUTTON: Blind Close (0%)
-        # =========================================================================
-        # WHAT THIS BUTTON DOES:
-        #   Closes the office window blind completely (0% open position).
-        #   Blocks all natural light and provides privacy.
-        #
-        # WHEN PRESSED:
-        #   Calls Home Assistant service: cover.set_cover_position
-        #   Target: cover.office_blind
-        #   Position: 0 (fully closed)
-        #
-        # HOW THE BUTTON KNOWS IF IT'S ACTIVE:
-        #   sensors.yaml reads the blind's current position from Home Assistant.
-        #   A template sensor (office_blind_0) checks if position is within
-        #   3% of 0%. If true, this button appears "checked" (highlighted).
-        # =========================================================================
-        - button: 
-            height: $button_height_single
-            width: $button_width
-            checkable: true
-            id: office_blind_close_button
-            styles: control
-            widgets:
-              - label:
-                  text_font: $icon_font
-                  align: top_left
-                  text: $blinds_closed
-              - label:
-                  align: bottom_left
-                  text: "Close"
-            on_click:
-              - homeassistant.service:
-                  service: cover.set_cover_position
-                  data:
-                    entity_id: cover.office_blind
-                    position: "0"
-
-    - id: aircon_page
-      layout: 
-        type: flex
-        flex_flow: column_wrap
-      scrollbar_mode: "off"
-      scroll_dir: "hor"
-      width: 100%
-      bg_color: Black
-      bg_opa: cover
-      pad_top: 34
-      pad_bottom: 5
-      pad_left: 5
-      pad_right: 5
-
-      widgets:
-
-        # =========================================================================
-        # BUTTON: Back (Return to Main Page)
-        # =========================================================================
-        - button: 
-            height: $button_height_single
-            width: $button_width
-            checkable: false
-            id: aircon_back_button
-            styles: control
-            widgets:
-              - label:
-                  text_font: $icon_font
-                  align: top_left
-                  text: $chevron_left
-              - label:
-                  align: bottom_left
-                  text: "Back"
-            on_click:
-              - lvgl.page.show: main_page
-
-        # =========================================================================
-        # BUTTON: Aircon Temperature
-        # =========================================================================
-        # WHAT THIS BUTTON DOES:
-        #   Displays the current aircon temperature reading.
-        #
-        # DATA SOURCE:
-        #   climate.office_air_conditioner (attribute: current_temperature)
-        #
-        # RELATED UI ELEMENT:
-        #   sensors.yaml → aircon_temp_label
-        # =========================================================================
-        - button: 
-            height: $button_height_single
-            width: $button_width
-            checkable: false
-            id: aircon_temp_button
-            styles: control
-            widgets:
-              - label:
-                  text_font: roboto44_font
-                  align: top_left
-                  id: aircon_temp_label
-                  text: "--"
-                  text_color: 0xFFFFFF
-              - label:
-                  align: bottom_left
-                  text: "Current"
-
-        # =========================================================================
-        # BUTTON: Aircon Power
-        # =========================================================================
-        # WHAT THIS BUTTON DOES:
-        #   Turns the air conditioner on/off.
-        #
-        # WHEN PRESSED:
-        #   Calls Home Assistant service: switch.toggle
-        #   Target: switch.office_air_conditioner
-        #
-        # HOW THE BUTTON KNOWS IF IT'S ACTIVE:
-        #   sensors.yaml monitors: switch.office_air_conditioner
-        # =========================================================================
-        - button: 
-            height: $button_height_single
-            width: $button_width
-            checkable: true
-            id: aircon_power_button
-            styles: control
-            widgets:
-              - label:
-                  text_font: $icon_font
-                  align: top_left
-                  text: $aircon
-              - label:
-                  align: bottom_left
-                  text: "Power"
-            on_click:
-              - homeassistant.service:
-                  service: switch.toggle
-                  data:
-                    entity_id: switch.office_air_conditioner
-
-        # =========================================================================
-        # BUTTON: Aircon Temp Up
-        # =========================================================================
-        # WHAT THIS BUTTON DOES:
-        #   Increases the target temperature by 1°C.
-        #   Only shown when aircon power is ON.
-        #
-        # DATA SOURCE:
-        #   climate.office_air_conditioner (attribute: temperature)
-        # =========================================================================
-        - button: 
-            height: $button_height_single
-            width: $button_width
-            checkable: false
-            id: aircon_temp_up_button
-            styles: control
-            hidden: true
-            widgets:
-              - label:
-                  text_font: roboto44_font
-                  align: top_left
-                  text: "+1°"
-              - label:
-                  align: bottom_left
-                  text: "Up"
-            on_click:
-              - homeassistant.service:
-                  service: climate.set_temperature
-                  data:
-                    entity_id: climate.office_air_conditioner
-                    temperature: !lambda |-
-                      if (id(aircon_target_temperature).has_state()) {
-                        return id(aircon_target_temperature).state + 1.0f;
-                      }
-                      return 0.0f;
-
-        # =========================================================================
-        # BUTTON: Aircon Set Temperature
-        # =========================================================================
-        # WHAT THIS BUTTON DOES:
-        #   Displays the current target/set temperature.
-        #   Only shown when aircon power is ON.
-        #
-        # DATA SOURCE:
-        #   climate.office_air_conditioner (attribute: temperature)
-        # =========================================================================
-        - button: 
-            height: $button_height_single
-            width: $button_width
-            checkable: false
-            id: aircon_set_temp_button
-            styles: control
-            hidden: true
-            widgets:
-              - label:
-                  text_font: roboto44_font
-                  align: top_left
-                  id: aircon_set_temp_label
-                  text: "--"
-                  text_color: 0xFFFFFF
-              - label:
-                  align: bottom_left
-                  text: "Target"
-
-        # =========================================================================
-        # BUTTON: Aircon Temp Down
-        # =========================================================================
-        # WHAT THIS BUTTON DOES:
-        #   Decreases the target temperature by 1°C.
-        #   Only shown when aircon power is ON.
-        #
-        # DATA SOURCE:
-        #   climate.office_air_conditioner (attribute: temperature)
-        # =========================================================================
-        - button: 
-            height: $button_height_single
-            width: $button_width
-            checkable: false
-            id: aircon_temp_down_button
-            styles: control
-            hidden: true
-            widgets:
-              - label:
-                  text_font: roboto44_font
-                  align: top_left
-                  text: "-1°"
-              - label:
-                  align: bottom_left
-                  text: "Down"
-            on_click:
-              - homeassistant.service:
-                  service: climate.set_temperature
-                  data:
-                    entity_id: climate.office_air_conditioner
-                    temperature: !lambda |-
-                      if (id(aircon_target_temperature).has_state()) {
-                        return id(aircon_target_temperature).state - 1.0f;
-                      }
-                      return 0.0f;
-
-    - id: aircon_lab_page
+    # ===========================================================================
+    # FAN SPEED SUB-PAGE
+    # ===========================================================================
+    # [← Back]  [Off]    [Low]
+    # [Medium]  [High]
+    #
+    # Speed buttons highlight to show the current active speed.
+    # "Off" button highlights when the fan is off.
+    # States driven by fr_fan_state + fr_fan_percentage in sensors.yaml.
+    # ===========================================================================
+    - id: family_room_fan_page
       layout:
         type: flex
-        flex_flow: column
+        flex_flow: row_wrap
       scrollbar_mode: "off"
       width: 100%
-      height: 100%
       bg_color: Black
       bg_opa: cover
+      pad_top: 34
+      pad_bottom: 5
+      pad_left: 5
+      pad_right: 5
 
       widgets:
-        - obj:
-            id: aircon_lab_root
-            width: 100%
-            height: 100%
-            bg_opa: TRANSP
-            border_width: 0
-            pad_all: 0
+
+        # -----------------------------------------------------------------------
+        # BACK to Family Room
+        # -----------------------------------------------------------------------
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: false
+            id: fr_fan_back_btn
+            styles: control
             widgets:
-              # Back button
-              - button:
-                  id: aircon_lab_back_button
-                  width: 60px
-                  height: 60px
-                  x: 5
-                  y: 34
-                  styles: control
-                  widgets:
-                    - label:
-                        text_font: $icon_font
-                        align: center
-                        text: $chevron_left
-                  on_click:
-                    - lvgl.page.show: aircon_page
-
-              # Power button
-              - button:
-                  id: aircon_lab_power_button
-                  width: 60px
-                  height: 60px
-                  x: 415
-                  y: 34
-                  styles: control
-                  checkable: true
-                  widgets:
-                    - label:
-                        text_font: $icon_font
-                        align: center
-                        text: $power
-                  on_click:
-                    - homeassistant.service:
-                        service: switch.toggle
-                        data:
-                          entity_id: switch.office_air_conditioner
-
-              # Arc control for target temperature
-              - arc:
-                  id: aircon_target_arc
-                  x: 60
-                  y: 80
-                  width: 360
-                  height: 360
-                  min_value: 8
-                  max_value: 25
-                  start_angle: 135
-                  end_angle: 45
-                  rotation: 0
-                  value: 22
-                  arc_width: 18
-                  arc_color: 0x2A2A2A
-                  clickable: true
-                  adjustable: true
-                  indicator:
-                    arc_color: 0xFF8C00
-                    arc_width: 18
-                  knob:
-                    bg_color: 0xFFFFFF
-                  on_value:
-                    - homeassistant.service:
-                        service: climate.set_temperature
-                        data:
-                          entity_id: climate.office_air_conditioner
-                          temperature: !lambda return x;
-
-              # Arc indicator for current temperature (read-only)
-              - arc:
-                  id: aircon_current_arc
-                  x: 60
-                  y: 80
-                  width: 360
-                  height: 360
-                  min_value: 8
-                  max_value: 25
-                  start_angle: 135
-                  end_angle: 45
-                  rotation: 0
-                  value: 22
-                  arc_width: 0
-                  arc_color: 0x000000
-                  indicator:
-                    arc_color: 0x7A7A7A
-                    arc_width: 0
-                  knob:
-                    bg_color: 0x7A7A7A
-                  clickable: false
-
-              # Target temperature label (below)
               - label:
-                  id: aircon_lab_target_label
-                  text: "--°"
-                  text_font: roboto36_font
-                  text_color: 0xFFFFFF
-                  align: center
-                  y: 60
+                  text_font: $icon_font
+                  align: top_left
+                  text: $chevron_left
+              - label:
+                  align: bottom_left
+                  text: "Back"
+            on_click:
+              - lvgl.page.show: family_room_page
 
-              # Down button
-              - button:
-                  id: aircon_lab_down_button
-                  width: 70px
-                  height: 70px
-                  x: 160
-                  y: 360
-                  styles: control
-                  radius: 35px
-                  bg_opa: TRANSP
-                  border_width: 2
-                  border_color: 0x7A7A7A
-                  border_opa: COVER
-                  widgets:
-                    - label:
-                        text: "-"
-                        text_font: roboto44_font
-                        text_color: 0x7A7A7A
-                        align: center
-                  on_click:
-                    - homeassistant.service:
-                        service: climate.set_temperature
-                        data:
-                          entity_id: climate.office_air_conditioner
-                          temperature: !lambda |-
-                            if (id(aircon_target_temperature).has_state()) {
-                              return id(aircon_target_temperature).state - 1.0f;
-                            }
-                            return 0.0f;
+        # -----------------------------------------------------------------------
+        # FAN OFF
+        # Highlighted when fan.family_room_ceiling_fan is off.
+        # -----------------------------------------------------------------------
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: true
+            id: fr_fan_off_btn
+            styles: control
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $power
+              - label:
+                  align: bottom_left
+                  text: "Off"
+            on_click:
+              - homeassistant.service:
+                  service: fan.turn_off
+                  data:
+                    entity_id: fan.family_room_ceiling_fan
 
-              # Up button
-              - button:
-                  id: aircon_lab_up_button
-                  width: 70px
-                  height: 70px
-                  x: 260
-                  y: 360
-                  styles: control
-                  radius: 35px
-                  bg_opa: TRANSP
-                  border_width: 2
-                  border_color: 0x7A7A7A
-                  border_opa: COVER
-                  widgets:
-                    - label:
-                        text: "+"
-                        text_font: roboto44_font
-                        text_color: 0x7A7A7A
-                        align: center
-                  on_click:
-                    - homeassistant.service:
-                        service: climate.set_temperature
-                        data:
-                          entity_id: climate.office_air_conditioner
-                          temperature: !lambda |-
-                            if (id(aircon_target_temperature).has_state()) {
-                              return id(aircon_target_temperature).state + 1.0f;
-                            }
-                            return 0.0f;
+        # -----------------------------------------------------------------------
+        # FAN LOW (~33%)
+        # Highlighted when fan is on and percentage is ~33%.
+        # Adjust the percentage value if your fan uses different speed steps.
+        # -----------------------------------------------------------------------
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: true
+            id: fr_fan_low_btn
+            styles: control
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $fan
+              - label:
+                  align: bottom_left
+                  text: "Low"
+            on_click:
+              - homeassistant.service:
+                  service: fan.set_percentage
+                  data:
+                    entity_id: fan.family_room_ceiling_fan
+                    percentage: "33"
 
-    - id: heating_lab_page
+        # -----------------------------------------------------------------------
+        # FAN MEDIUM (~66%)
+        # -----------------------------------------------------------------------
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: true
+            id: fr_fan_med_btn
+            styles: control
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $fan
+              - label:
+                  align: bottom_left
+                  text: "Medium"
+            on_click:
+              - homeassistant.service:
+                  service: fan.set_percentage
+                  data:
+                    entity_id: fan.family_room_ceiling_fan
+                    percentage: "66"
+
+        # -----------------------------------------------------------------------
+        # FAN HIGH (100%)
+        # -----------------------------------------------------------------------
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: true
+            id: fr_fan_high_btn
+            styles: control
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $fan
+              - label:
+                  align: bottom_left
+                  text: "High"
+            on_click:
+              - homeassistant.service:
+                  service: fan.set_percentage
+                  data:
+                    entity_id: fan.family_room_ceiling_fan
+                    percentage: "100"
+
+    # ===========================================================================
+    # THERMOSTAT PAGE - Circular arc temperature control
+    # ===========================================================================
+    # Arc range is 60–85°F directly (no unit conversion needed for US thermostats).
+    # The large white dot on the arc is the TARGET temperature (draggable).
+    # The small white dot with orange border is the CURRENT temperature (read-only).
+    # The orange arc fill shows the gap between current and target.
+    #
+    # NOTE: climate.set_temperature sets the setpoint for the current hvac_mode.
+    # If your thermostat is in heat_cool mode it controls whichever setpoint is
+    # active. For heat-only or cool-only mode this works perfectly.
+    # ===========================================================================
+    - id: family_room_thermostat_page
       layout:
         type: flex
         flex_flow: column
@@ -1216,16 +492,18 @@ lvgl:
 
       widgets:
         - obj:
-            id: heating_lab_root
+            id: fr_therm_root
             width: 100%
             height: 100%
             bg_opa: TRANSP
             border_width: 0
             pad_all: 0
+
             widgets:
+
               # Back button
               - button:
-                  id: heating_lab_back_button
+                  id: fr_therm_back_btn
                   width: 60px
                   height: 60px
                   x: 5
@@ -1237,21 +515,21 @@ lvgl:
                         align: center
                         text: $chevron_left
                   on_click:
-                    - lvgl.page.show: main_page
+                    - lvgl.page.show: family_room_page
 
-              # Base track arc
+              # Base track arc (full 60-85°F range, dark gray)
               - arc:
-                  id: heating_track_arc
+                  id: fr_therm_track_arc
                   x: 60
                   y: 80
                   width: 360
                   height: 360
-                  min_value: 20
-                  max_value: 64
+                  min_value: 60
+                  max_value: 85
                   start_angle: 135
                   end_angle: 45
                   rotation: 0
-                  value: 44
+                  value: 72
                   arc_width: 18
                   arc_color: 0x3A3A3A
                   clickable: false
@@ -1262,19 +540,19 @@ lvgl:
                   knob:
                     bg_color: 0x3A3A3A
 
-              # Delta arc between current and target temperatures
+              # Delta arc — fills from the lower of (current, target) to the higher
               - arc:
-                  id: heating_delta_arc
+                  id: fr_therm_delta_arc
                   x: 60
                   y: 80
                   width: 360
                   height: 360
-                  min_value: 20
-                  max_value: 64
+                  min_value: 60
+                  max_value: 85
                   start_angle: 135
                   end_angle: 45
                   rotation: 0
-                  value: 44
+                  value: 72
                   arc_width: 0
                   arc_color: 0x000000
                   indicator:
@@ -1284,19 +562,19 @@ lvgl:
                     bg_color: 0x000000
                   clickable: false
 
-              # Mask arc to hide the segment below the minimum (track color)
+              # Mask arc — covers track from arc start up to the lower of (current, target)
               - arc:
-                  id: heating_mask_arc
+                  id: fr_therm_mask_arc
                   x: 60
                   y: 80
                   width: 360
                   height: 360
-                  min_value: 20
-                  max_value: 64
+                  min_value: 60
+                  max_value: 85
                   start_angle: 135
                   end_angle: 45
                   rotation: 0
-                  value: 44
+                  value: 72
                   arc_width: 0
                   arc_color: 0x000000
                   indicator:
@@ -1306,19 +584,19 @@ lvgl:
                     bg_color: 0x000000
                   clickable: false
 
-              # Dot for current temperature
+              # Current temperature dot (small, white with orange border, read-only)
               - arc:
-                  id: heating_current_arc
+                  id: fr_therm_current_arc
                   x: 60
                   y: 80
                   width: 360
                   height: 360
-                  min_value: 20
-                  max_value: 64
+                  min_value: 60
+                  max_value: 85
                   start_angle: 135
                   end_angle: 45
                   rotation: 0
-                  value: 44
+                  value: 72
                   arc_width: 0
                   arc_color: 0x000000
                   indicator:
@@ -1330,19 +608,19 @@ lvgl:
                     border_color: 0xE06A2A
                   clickable: false
 
-              # Dot for target temperature
+              # Target temperature dot (large, draggable — sets new setpoint)
               - arc:
-                  id: heating_target_dot_arc
+                  id: fr_therm_target_arc
                   x: 65
                   y: 85
                   width: 350
                   height: 350
-                  min_value: 20
-                  max_value: 64
+                  min_value: 60
+                  max_value: 85
                   start_angle: 135
                   end_angle: 45
                   rotation: 0
-                  value: 44
+                  value: 72
                   arc_width: 0
                   arc_color: 0x000000
                   indicator:
@@ -1361,30 +639,29 @@ lvgl:
                     - homeassistant.service:
                         service: climate.set_temperature
                         data:
-                          entity_id: climate.all_thermostats
-                          hvac_mode: heat
-                          temperature: !lambda return ((float)x / 2.0f) * 9.0f / 5.0f + 32.0f;
+                          entity_id: climate.family_room_thermostat
+                          temperature: !lambda return (float)x;
 
-              # Mode label
+              # HVAC mode label (Heating / Cooling / Idle / Off)
               - label:
-                  id: heating_lab_mode_label
-                  text: "Heating"
+                  id: fr_therm_mode_label
+                  text: "..."
                   text_font: roboto19_font
                   text_color: 0xE06A2A
                   align: center
                   y: -70
 
-              # Target temperature label (center)
+              # Target temperature (large, center)
               - label:
-                  id: heating_lab_target_label
-                  text: "--.-°C"
+                  id: fr_therm_target_label
+                  text: "--°F"
                   text_font: roboto48_font
                   text_color: 0xE6E6E6
                   align: center
 
-              # Current temperature label (below)
+              # Current temperature row (icon + value, below center)
               - obj:
-                  id: heating_lab_current_row
+                  id: fr_therm_current_row
                   width: SIZE_CONTENT
                   height: SIZE_CONTENT
                   align: center
@@ -1399,22 +676,19 @@ lvgl:
                     flex_align_cross: center
                   widgets:
                     - label:
-                        id: heating_lab_current_icon
                         text: $thermometer
                         text_font: icon_font_small
                         text_color: 0xE06A2A
-                        align: center
                         pad_right: 6
                     - label:
-                        id: heating_lab_current_value
-                        text: "--.-°C"
+                        id: fr_therm_current_value
+                        text: "--°F"
                         text_font: roboto19_font
                         text_color: 0xE06A2A
-                        align: center
 
-              # Down button (-0.5C)
+              # Down button (-1°F)
               - button:
-                  id: heating_lab_down_button
+                  id: fr_therm_down_btn
                   width: 70px
                   height: 70px
                   x: 160
@@ -1434,17 +708,16 @@ lvgl:
                     - homeassistant.service:
                         service: climate.set_temperature
                         data:
-                          entity_id: climate.all_thermostats
-                          hvac_mode: heat
+                          entity_id: climate.family_room_thermostat
                           temperature: !lambda |-
-                            if (id(heating_target_temperature).has_state()) {
-                              return id(heating_target_temperature).state - 1.0f;
+                            if (id(fr_thermostat_target_temp).has_state()) {
+                              return id(fr_thermostat_target_temp).state - 1.0f;
                             }
-                            return 0.0f;
+                            return 70.0f;
 
-              # Up button (+0.5C)
+              # Up button (+1°F)
               - button:
-                  id: heating_lab_up_button
+                  id: fr_therm_up_btn
                   width: 70px
                   height: 70px
                   x: 260
@@ -1464,10 +737,9 @@ lvgl:
                     - homeassistant.service:
                         service: climate.set_temperature
                         data:
-                          entity_id: climate.all_thermostats
-                          hvac_mode: heat
+                          entity_id: climate.family_room_thermostat
                           temperature: !lambda |-
-                            if (id(heating_target_temperature).has_state()) {
-                              return id(heating_target_temperature).state + 1.0f;
+                            if (id(fr_thermostat_target_temp).has_state()) {
+                              return id(fr_thermostat_target_temp).state + 1.0f;
                             }
-                            return 0.0f;
+                            return 70.0f;
