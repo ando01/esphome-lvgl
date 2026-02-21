@@ -214,6 +214,79 @@ sensor:
             return (int)roundf(cur < tgt ? cur : tgt);
 
   # ---------------------------------------------------------------------------
+  # All Thermostats Current Temperature
+  # ---------------------------------------------------------------------------
+  - platform: homeassistant
+    entity_id: climate.all_thermostats
+    id: at_thermostat_current_temp
+    attribute: current_temperature
+    on_value:
+      - lvgl.label.update:
+          id: at_therm_current_value
+          text:
+            format: "%.0f°F"
+            args: [ 'x' ]
+      - lvgl.arc.update:
+          id: at_therm_current_arc
+          value: !lambda return (int)roundf(x);
+      - lvgl.arc.update:
+          id: at_therm_delta_arc
+          value: !lambda |-
+            float cur = x;
+            float tgt = cur;
+            if (id(at_thermostat_target_temp).has_state()) {
+              tgt = id(at_thermostat_target_temp).state;
+            }
+            return (int)roundf(cur > tgt ? cur : tgt);
+      - lvgl.arc.update:
+          id: at_therm_mask_arc
+          value: !lambda |-
+            float cur = x;
+            float tgt = cur;
+            if (id(at_thermostat_target_temp).has_state()) {
+              tgt = id(at_thermostat_target_temp).state;
+            }
+            return (int)roundf(cur < tgt ? cur : tgt);
+
+  # ---------------------------------------------------------------------------
+  # All Thermostats Target Temperature (setpoint)
+  # ---------------------------------------------------------------------------
+  - platform: homeassistant
+    entity_id: climate.all_thermostats
+    id: at_thermostat_target_temp
+    attribute: temperature
+    on_value:
+      - lvgl.label.update:
+          id: at_therm_target_label
+          text:
+            format: "%.0f°F"
+            args: [ 'x' ]
+      - lvgl.arc.update:
+          id: at_therm_track_arc
+          value: !lambda return (int)roundf(x);
+      - lvgl.arc.update:
+          id: at_therm_target_arc
+          value: !lambda return (int)roundf(x);
+      - lvgl.arc.update:
+          id: at_therm_delta_arc
+          value: !lambda |-
+            float tgt = x;
+            float cur = tgt;
+            if (id(at_thermostat_current_temp).has_state()) {
+              cur = id(at_thermostat_current_temp).state;
+            }
+            return (int)roundf(cur > tgt ? cur : tgt);
+      - lvgl.arc.update:
+          id: at_therm_mask_arc
+          value: !lambda |-
+            float tgt = x;
+            float cur = tgt;
+            if (id(at_thermostat_current_temp).has_state()) {
+              cur = id(at_thermostat_current_temp).state;
+            }
+            return (int)roundf(cur < tgt ? cur : tgt);
+
+  # ---------------------------------------------------------------------------
   # Ceiling Fan Speed (percentage)
   # ---------------------------------------------------------------------------
   # Source:    fan.family_room_ceiling_fan (attribute: percentage)
@@ -358,6 +431,24 @@ text_sensor:
     on_value:
       - lvgl.label.update:
           id: fr_therm_mode_label
+          text: !lambda |-
+            if (x == "heating") return "Heating";
+            if (x == "cooling") return "Cooling";
+            if (x == "idle") return "Idle";
+            if (x == "off") return "Off";
+            if (x == "fan") return "Fan";
+            return x.c_str();
+
+  # ---------------------------------------------------------------------------
+  # All Thermostats HVAC Action
+  # ---------------------------------------------------------------------------
+  - platform: homeassistant
+    entity_id: climate.all_thermostats
+    id: at_thermostat_hvac_action
+    attribute: hvac_action
+    on_value:
+      - lvgl.label.update:
+          id: at_therm_mode_label
           text: !lambda |-
             if (x == "heating") return "Heating";
             if (x == "cooling") return "Cooling";
@@ -550,6 +641,20 @@ binary_sensor:
       then:
         lvgl.widget.update:
           id: fr_thermostat_btn
+          state:
+            checked: !lambda return x;
+
+  # ---------------------------------------------------------------------------
+  # All Thermostats Mode (on/off state for the family room page button)
+  # ---------------------------------------------------------------------------
+  - platform: homeassistant
+    id: at_thermostat_state
+    entity_id: climate.all_thermostats
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        lvgl.widget.update:
+          id: fr_all_thermostats_btn
           state:
             checked: !lambda return x;
 
