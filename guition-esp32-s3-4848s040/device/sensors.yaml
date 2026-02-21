@@ -301,6 +301,42 @@ sensor:
           id: dr_table_brightness_slider
           value: !lambda return (int)x;
 
+  # ---------------------------------------------------------------------------
+  # Foyer Light Brightness (0-255)
+  # ---------------------------------------------------------------------------
+  - platform: homeassistant
+    entity_id: light.foyer_light_node_13
+    id: fo_foyer_brightness
+    attribute: brightness
+    on_value:
+      - lvgl.slider.update:
+          id: fo_foyer_brightness_slider
+          value: !lambda return (int)x;
+
+  # ---------------------------------------------------------------------------
+  # Deck Flood Light Brightness (0-255)
+  # ---------------------------------------------------------------------------
+  - platform: homeassistant
+    entity_id: light.deck_flood_light
+    id: dk_flood_brightness
+    attribute: brightness
+    on_value:
+      - lvgl.slider.update:
+          id: dk_flood_brightness_slider
+          value: !lambda return (int)x;
+
+  # ---------------------------------------------------------------------------
+  # Patio Wall Lights Brightness (0-255)
+  # ---------------------------------------------------------------------------
+  - platform: homeassistant
+    entity_id: light.patio_wall_lights
+    id: pt_wall_brightness
+    attribute: brightness
+    on_value:
+      - lvgl.slider.update:
+          id: pt_wall_brightness_slider
+          value: !lambda return (int)x;
+
 
 # =============================================================================
 # TEXT SENSORS (String Values)
@@ -350,6 +386,83 @@ text_sensor:
 
 
 # =============================================================================
+# SCRIPTS - Nav Button Highlight Updates
+# =============================================================================
+# Each script checks all light/fan entities for a room and sets the nav button
+# checked state to orange if any are on, dark if all are off.
+# Scripts are called by binary_sensor on_state handlers below.
+# Thermostat sensors are intentionally excluded (active thermostat ≠ lights on).
+# =============================================================================
+
+script:
+
+  - id: update_fr_nav
+    then:
+      - lvgl.widget.update:
+          id: family_room_nav_btn
+          state:
+            checked: !lambda |-
+              return id(fr_ceiling_lights_state).state ||
+                     id(fr_lamps_state).state ||
+                     id(fr_fireplace_state).state ||
+                     id(fr_fan_state).state;
+
+  - id: update_kt_nav
+    then:
+      - lvgl.widget.update:
+          id: kitchen_nav_btn
+          state:
+            checked: !lambda |-
+              return id(kt_ceiling_lights_state).state ||
+                     id(kt_leds_state).state ||
+                     id(kt_cabinet_leds_state).state ||
+                     id(kt_island_state).state ||
+                     id(kt_hall_state).state;
+
+  - id: update_dr_nav
+    then:
+      - lvgl.widget.update:
+          id: dining_room_nav_btn
+          state:
+            checked: !lambda |-
+              return id(dr_ceiling_lights_state).state ||
+                     id(dr_table_light_state).state;
+
+  - id: update_lo_nav
+    then:
+      - lvgl.widget.update:
+          id: lisas_office_nav_btn
+          state:
+            checked: !lambda |-
+              return id(lo_light_state).state;
+
+  - id: update_fo_nav
+    then:
+      - lvgl.widget.update:
+          id: foyer_nav_btn
+          state:
+            checked: !lambda |-
+              return id(fo_foyer_light_state).state;
+
+  - id: update_dk_nav
+    then:
+      - lvgl.widget.update:
+          id: deck_nav_btn
+          state:
+            checked: !lambda |-
+              return id(dk_flood_light_state).state;
+
+  - id: update_pt_nav
+    then:
+      - lvgl.widget.update:
+          id: patio_nav_btn
+          state:
+            checked: !lambda |-
+              return id(pt_wall_lights_state).state ||
+                     id(pt_xmas_lights_state).state;
+
+
+# =============================================================================
 # BINARY SENSORS (On/Off States)
 # =============================================================================
 # When a sensor is ON (true)  -> button shows as checked (orange highlight)
@@ -367,10 +480,11 @@ binary_sensor:
     trigger_on_initial_state: true
     on_state:
       then:
-        lvgl.widget.update:
-          id: fr_ceiling_lights_btn
-          state:
-            checked: !lambda return x;
+        - lvgl.widget.update:
+            id: fr_ceiling_lights_btn
+            state:
+              checked: !lambda return x;
+        - script.execute: update_fr_nav
 
   # ---------------------------------------------------------------------------
   # Lamps (group)
@@ -381,10 +495,11 @@ binary_sensor:
     trigger_on_initial_state: true
     on_state:
       then:
-        lvgl.widget.update:
-          id: fr_lamps_btn
-          state:
-            checked: !lambda return x;
+        - lvgl.widget.update:
+            id: fr_lamps_btn
+            state:
+              checked: !lambda return x;
+        - script.execute: update_fr_nav
 
   # ---------------------------------------------------------------------------
   # Fireplace Lights
@@ -395,10 +510,11 @@ binary_sensor:
     trigger_on_initial_state: true
     on_state:
       then:
-        lvgl.widget.update:
-          id: fr_fireplace_btn
-          state:
-            checked: !lambda return x;
+        - lvgl.widget.update:
+            id: fr_fireplace_btn
+            state:
+              checked: !lambda return x;
+        - script.execute: update_fr_nav
 
   # ---------------------------------------------------------------------------
   # Ceiling Fan (on/off)
@@ -418,6 +534,7 @@ binary_sensor:
             id: fr_fan_off_btn
             state:
               checked: !lambda return !x;
+        - script.execute: update_fr_nav
 
   # ---------------------------------------------------------------------------
   # Thermostat Mode (on/off state for the room page button)
@@ -446,10 +563,11 @@ binary_sensor:
     trigger_on_initial_state: true
     on_state:
       then:
-        lvgl.widget.update:
-          id: kt_ceiling_lights_btn
-          state:
-            checked: !lambda return x;
+        - lvgl.widget.update:
+            id: kt_ceiling_lights_btn
+            state:
+              checked: !lambda return x;
+        - script.execute: update_kt_nav
 
   - platform: homeassistant
     id: kt_leds_state
@@ -457,10 +575,11 @@ binary_sensor:
     trigger_on_initial_state: true
     on_state:
       then:
-        lvgl.widget.update:
-          id: kt_leds_btn
-          state:
-            checked: !lambda return x;
+        - lvgl.widget.update:
+            id: kt_leds_btn
+            state:
+              checked: !lambda return x;
+        - script.execute: update_kt_nav
 
   - platform: homeassistant
     id: kt_cabinet_leds_state
@@ -468,10 +587,11 @@ binary_sensor:
     trigger_on_initial_state: true
     on_state:
       then:
-        lvgl.widget.update:
-          id: kt_cabinet_leds_btn
-          state:
-            checked: !lambda return x;
+        - lvgl.widget.update:
+            id: kt_cabinet_leds_btn
+            state:
+              checked: !lambda return x;
+        - script.execute: update_kt_nav
 
   - platform: homeassistant
     id: kt_island_state
@@ -479,10 +599,11 @@ binary_sensor:
     trigger_on_initial_state: true
     on_state:
       then:
-        lvgl.widget.update:
-          id: kt_island_btn
-          state:
-            checked: !lambda return x;
+        - lvgl.widget.update:
+            id: kt_island_btn
+            state:
+              checked: !lambda return x;
+        - script.execute: update_kt_nav
 
   - platform: homeassistant
     id: kt_hall_state
@@ -490,10 +611,11 @@ binary_sensor:
     trigger_on_initial_state: true
     on_state:
       then:
-        lvgl.widget.update:
-          id: kt_hall_btn
-          state:
-            checked: !lambda return x;
+        - lvgl.widget.update:
+            id: kt_hall_btn
+            state:
+              checked: !lambda return x;
+        - script.execute: update_kt_nav
 
   - platform: homeassistant
     id: kt_thermostat_state
@@ -516,10 +638,11 @@ binary_sensor:
     trigger_on_initial_state: true
     on_state:
       then:
-        lvgl.widget.update:
-          id: dr_ceiling_lights_btn
-          state:
-            checked: !lambda return x;
+        - lvgl.widget.update:
+            id: dr_ceiling_lights_btn
+            state:
+              checked: !lambda return x;
+        - script.execute: update_dr_nav
 
   - platform: homeassistant
     id: dr_table_light_state
@@ -527,10 +650,11 @@ binary_sensor:
     trigger_on_initial_state: true
     on_state:
       then:
-        lvgl.widget.update:
-          id: dr_table_light_btn
-          state:
-            checked: !lambda return x;
+        - lvgl.widget.update:
+            id: dr_table_light_btn
+            state:
+              checked: !lambda return x;
+        - script.execute: update_dr_nav
 
   # ===========================================================================
   # LISA'S OFFICE BINARY SENSORS
@@ -542,7 +666,68 @@ binary_sensor:
     trigger_on_initial_state: true
     on_state:
       then:
-        lvgl.widget.update:
-          id: lo_light_btn
-          state:
-            checked: !lambda return x;
+        - lvgl.widget.update:
+            id: lo_light_btn
+            state:
+              checked: !lambda return x;
+        - script.execute: update_lo_nav
+
+  # ===========================================================================
+  # FOYER BINARY SENSORS
+  # ===========================================================================
+
+  - platform: homeassistant
+    id: fo_foyer_light_state
+    entity_id: light.foyer_light_node_13
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        - lvgl.widget.update:
+            id: fo_foyer_light_btn
+            state:
+              checked: !lambda return x;
+        - script.execute: update_fo_nav
+
+  # ===========================================================================
+  # DECK BINARY SENSORS
+  # ===========================================================================
+
+  - platform: homeassistant
+    id: dk_flood_light_state
+    entity_id: light.deck_flood_light
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        - lvgl.widget.update:
+            id: dk_flood_light_btn
+            state:
+              checked: !lambda return x;
+        - script.execute: update_dk_nav
+
+  # ===========================================================================
+  # PATIO BINARY SENSORS
+  # ===========================================================================
+
+  - platform: homeassistant
+    id: pt_wall_lights_state
+    entity_id: light.patio_wall_lights
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        - lvgl.widget.update:
+            id: pt_wall_lights_btn
+            state:
+              checked: !lambda return x;
+        - script.execute: update_pt_nav
+
+  - platform: homeassistant
+    id: pt_xmas_lights_state
+    entity_id: light.patio_christmas_lights
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        - lvgl.widget.update:
+            id: pt_xmas_lights_btn
+            state:
+              checked: !lambda return x;
+        - script.execute: update_pt_nav

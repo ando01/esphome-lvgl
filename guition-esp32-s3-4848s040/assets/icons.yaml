@@ -25,6 +25,10 @@ font:
       "\U000F034C",  # mdi-food (kitchen nav)
       "\U000F1120",  # mdi-table-chair (dining room nav)
       "\U000F0379",  # mdi-monitor (office nav)
+      "\U000F081C",  # mdi-door-open (foyer nav)
+      "\U000F1248",  # mdi-deck (deck nav)
+      "\U000F024F",  # mdi-flower (patio nav)
+      "\U000F04C3",  # mdi-speaker (media buttons)
       ]
   - file: 'https://github.com/Templarian/MaterialDesign-Webfont/raw/v7.4.47/fonts/materialdesignicons-webfont.ttf'
     id: icon_font_small
@@ -54,3 +58,7 @@ substitutions:
   food:               "\U000F034C"
   table_chair:        "\U000F1120"
   monitor:            "\U000F0379"
+  door_open:          "\U000F081C"
+  deck:               "\U000F1248"
+  flower:             "\U000F024F"
+  speaker:            "\U000F04C3"
