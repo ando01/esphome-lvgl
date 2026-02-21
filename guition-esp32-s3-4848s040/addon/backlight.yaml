@@ -1,4 +1,17 @@
-# Backlight
+# =============================================================================
+# BACKLIGHT & SCREENSAVER
+# =============================================================================
+# The display stays on while any motion sensor detects occupancy.
+# When BOTH sensors report no motion, a 5-minute countdown begins.
+# If either sensor detects motion before the timer expires, the timer resets.
+# After 5 minutes of no motion, the backlight turns off and the LVGL
+# screensaver (show_snow) activates.
+#
+# Motion sensors:
+#   binary_sensor.family_room_motion_sensor2_hue_occupancy  (Hue sensor)
+#   binary_sensor.family_room_motion_sensor1_aqara_occupancy (Aqara sensor)
+# =============================================================================
+
 light:
   - platform: monochromatic
     name: Backlight
@@ -8,21 +21,65 @@ light:
     default_transition_length: 1s
     internal: true
 
-# Screensaver Presence Trigger
-binary_sensor:
-  - platform: homeassistant
-    id: presence
-    entity_id: binary_sensor.family_room_motion_sensor2_hue_occupancy
-    on_press:
-      - lvgl.resume:
-      - delay: 10ms
-      - light.turn_on:
-          id: backlight
-      - logger.log: "Screensaver is turned off"
-
-    on_release:
+# ---------------------------------------------------------------------------
+# Timeout script — runs in restart mode so any new trigger resets the timer.
+# After 5 minutes of continuous no-motion, the display turns off.
+# ---------------------------------------------------------------------------
+script:
+  - id: backlight_timeout
+    mode: restart
+    then:
+      - delay: 5min
       - light.turn_off:
           id: backlight
       - lvgl.pause:
           show_snow: true
-      - logger.log: "Screensaver is turned on"
+      - logger.log: "Screensaver activated (no motion for 5 minutes)"
+
+binary_sensor:
+
+  # ---------------------------------------------------------------------------
+  # Hue Motion Sensor
+  # ---------------------------------------------------------------------------
+  - platform: homeassistant
+    id: fr_motion_hue
+    entity_id: binary_sensor.family_room_motion_sensor2_hue_occupancy
+    on_press:
+      # Motion detected — wake the display and cancel any pending timeout
+      - script.stop: backlight_timeout
+      - lvgl.resume:
+      - delay: 10ms
+      - light.turn_on:
+          id: backlight
+      - logger.log: "Screensaver off (Hue motion)"
+    on_release:
+      # Hue cleared — only start timeout if the Aqara sensor is also clear
+      - if:
+          condition:
+            binary_sensor.is_off: fr_motion_aqara
+          then:
+            - script.execute: backlight_timeout
+            - logger.log: "Timeout started (Hue cleared, Aqara also clear)"
+
+  # ---------------------------------------------------------------------------
+  # Aqara Motion Sensor
+  # ---------------------------------------------------------------------------
+  - platform: homeassistant
+    id: fr_motion_aqara
+    entity_id: binary_sensor.family_room_motion_sensor1_aqara_occupancy
+    on_press:
+      # Motion detected — wake the display and cancel any pending timeout
+      - script.stop: backlight_timeout
+      - lvgl.resume:
+      - delay: 10ms
+      - light.turn_on:
+          id: backlight
+      - logger.log: "Screensaver off (Aqara motion)"
+    on_release:
+      # Aqara cleared — only start timeout if the Hue sensor is also clear
+      - if:
+          condition:
+            binary_sensor.is_off: fr_motion_hue
+          then:
+            - script.execute: backlight_timeout
+            - logger.log: "Timeout started (Aqara cleared, Hue also clear)"

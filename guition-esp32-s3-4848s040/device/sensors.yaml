@@ -241,6 +241,66 @@ sensor:
           state:
             checked: !lambda return id(fr_fan_state).state && abs(x - 100.0f) <= 5.0f;
 
+  # ---------------------------------------------------------------------------
+  # Family Room Ceiling Light Brightness (0-255)
+  # ---------------------------------------------------------------------------
+  # Source:  light.family_room_ceiling_lights (attribute: brightness)
+  # Updates: fr_ceiling_brightness_slider in lvgl.yaml
+  # ---------------------------------------------------------------------------
+  - platform: homeassistant
+    entity_id: light.family_room_ceiling_lights
+    id: fr_ceiling_brightness
+    attribute: brightness
+    on_value:
+      - lvgl.slider.update:
+          id: fr_ceiling_brightness_slider
+          value: !lambda return (int)x;
+
+  # ---------------------------------------------------------------------------
+  # Family Room Fireplace Light Brightness (0-255)
+  # ---------------------------------------------------------------------------
+  # Source:  light.family_room_fireplace_lights (attribute: brightness)
+  # Updates: fr_fireplace_brightness_slider in lvgl.yaml
+  # ---------------------------------------------------------------------------
+  - platform: homeassistant
+    entity_id: light.family_room_fireplace_lights
+    id: fr_fireplace_brightness
+    attribute: brightness
+    on_value:
+      - lvgl.slider.update:
+          id: fr_fireplace_brightness_slider
+          value: !lambda return (int)x;
+
+  # ---------------------------------------------------------------------------
+  # Dining Room Ceiling Light Brightness (0-255)
+  # ---------------------------------------------------------------------------
+  # Source:  light.dining_room_ceiling_lights_node_5 (attribute: brightness)
+  # Updates: dr_ceiling_brightness_slider in lvgl.yaml
+  # ---------------------------------------------------------------------------
+  - platform: homeassistant
+    entity_id: light.dining_room_ceiling_lights_node_5
+    id: dr_ceiling_brightness
+    attribute: brightness
+    on_value:
+      - lvgl.slider.update:
+          id: dr_ceiling_brightness_slider
+          value: !lambda return (int)x;
+
+  # ---------------------------------------------------------------------------
+  # Dining Room Table Light Brightness (0-255)
+  # ---------------------------------------------------------------------------
+  # Source:  light.dining_room_table_light_node_6 (attribute: brightness)
+  # Updates: dr_table_brightness_slider in lvgl.yaml
+  # ---------------------------------------------------------------------------
+  - platform: homeassistant
+    entity_id: light.dining_room_table_light_node_6
+    id: dr_table_brightness
+    attribute: brightness
+    on_value:
+      - lvgl.slider.update:
+          id: dr_table_brightness_slider
+          value: !lambda return (int)x;
+
 
 # =============================================================================
 # TEXT SENSORS (String Values)
@@ -358,35 +418,6 @@ binary_sensor:
             id: fr_fan_off_btn
             state:
               checked: !lambda return !x;
-
-  # ---------------------------------------------------------------------------
-  # LG Family Room TV
-  # State is true when TV is on/playing/paused/idle; false when off/unavailable.
-  # ---------------------------------------------------------------------------
-  - platform: homeassistant
-    id: fr_tv_state
-    entity_id: media_player.lg_family_room_tv
-    trigger_on_initial_state: true
-    on_state:
-      then:
-        lvgl.widget.update:
-          id: fr_tv_btn
-          state:
-            checked: !lambda return x;
-
-  # ---------------------------------------------------------------------------
-  # Christmas Tree (smart plug light entity)
-  # ---------------------------------------------------------------------------
-  - platform: homeassistant
-    id: fr_xmas_state
-    entity_id: light.indoor_xmas_tree_plug_indoor_xmas_tree_relay
-    trigger_on_initial_state: true
-    on_state:
-      then:
-        lvgl.widget.update:
-          id: fr_xmas_btn
-          state:
-            checked: !lambda return x;
 
   # ---------------------------------------------------------------------------
   # Thermostat Mode (on/off state for the room page button)
