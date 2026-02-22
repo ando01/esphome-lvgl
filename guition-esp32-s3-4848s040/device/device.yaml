@@ -152,6 +152,15 @@ touchscreen:
   - platform: gt911
     id: tft_touch
     display: tft_display
+    on_touch:
+      # Wake the display on any touch. When LVGL is paused (screensaver active),
+      # this first touch only wakes the display without triggering buttons.
+      # Also resets the idle timeout while the display is in use.
+      - script.stop: backlight_timeout
+      - lvgl.resume:
+      - light.turn_on:
+          id: backlight
+      - script.execute: backlight_timeout
 
 
 # -----------------------------------------------------------------------------

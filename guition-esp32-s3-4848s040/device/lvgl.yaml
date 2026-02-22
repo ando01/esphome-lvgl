@@ -14,15 +14,6 @@
 
 lvgl:
   buffer_size: 100%
-  on_touch:
-    # Wake the display on any touch. When LVGL is paused (screensaver active),
-    # touch events are not forwarded to buttons, so this first touch only wakes
-    # the display. Also resets the idle timeout while the display is in use.
-    - script.stop: backlight_timeout
-    - lvgl.resume:
-    - light.turn_on:
-        id: backlight
-    - script.execute: backlight_timeout
   top_layer:
     widgets:
 
