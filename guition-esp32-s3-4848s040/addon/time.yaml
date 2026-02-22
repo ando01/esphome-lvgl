@@ -1,4 +1,6 @@
-# Snmp Time
+# SNTP time source (used for device-side timestamps and logging).
+# The clock display is driven by sensor.date_and_time from Home Assistant
+# via the ha_date_and_time text_sensor in sensors.yaml.
 time:
   - platform: sntp
     id: sntp_time
@@ -7,22 +9,3 @@ time:
      - 0.pool.ntp.org
      - 1.pool.ntp.org
      - 2.pool.ntp.org
-    on_time_sync:
-      - script.execute: time_update
-    on_time:
-      - minutes: '*'
-        seconds: 0
-        then:
-          - script.execute: time_update
-
-# Clock
-script:
-  - id: time_update
-    then:
-      - lvgl.label.update:
-          id: display_time
-          text: !lambda |-
-            static char time_buf[17];
-            auto now = id(sntp_time).now();
-            snprintf(time_buf, sizeof(time_buf), "%02d:%02d", now.hour, now.minute);
-            return time_buf;

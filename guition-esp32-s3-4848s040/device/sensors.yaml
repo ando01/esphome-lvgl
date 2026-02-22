@@ -26,38 +26,36 @@
 sensor:
 
   # ---------------------------------------------------------------------------
-  # Family Room Temperature
+  # Outside Temperature
   # ---------------------------------------------------------------------------
-  # Source:  sensor.family_room_temp_sensor_h5101_temperature
-  # Updates: "temperatures" label in the top bar ("72°F / 45%")
-  # Note:    Assumes HA is configured for Imperial (°F). If your sensor
-  #          reports Celsius, change the format to "%.0f°C / %.0f%%" below.
+  # Source:  sensor.outside_temperature
+  # Updates: "temperatures" label in the top bar ("68°F / 72°F")
   # ---------------------------------------------------------------------------
   - platform: homeassistant
-    entity_id: sensor.family_room_temp_sensor_h5101_temperature
-    id: fr_room_temperature
+    entity_id: sensor.outside_temperature
+    id: outside_temperature
     on_value:
       - lvgl.label.update:
           id: temperatures
           text:
-            format: "%.0f°F / %.0f%%"
-            args: [ 'x', 'id(fr_room_humidity).state' ]
+            format: "%.0f°F / %.0f°F"
+            args: [ 'x', 'id(inside_temperature).state' ]
 
   # ---------------------------------------------------------------------------
-  # Family Room Humidity
+  # Inside Temperature (Kitchen)
   # ---------------------------------------------------------------------------
-  # Source:  sensor.family_room_temp_sensor_h5101_humidity
-  # Updates: "temperatures" label in the top bar ("72°F / 45%")
+  # Source:  sensor.kitchen_temperature
+  # Updates: "temperatures" label in the top bar ("68°F / 72°F")
   # ---------------------------------------------------------------------------
   - platform: homeassistant
-    entity_id: sensor.family_room_temp_sensor_h5101_humidity
-    id: fr_room_humidity
+    entity_id: sensor.kitchen_temperature
+    id: inside_temperature
     on_value:
       - lvgl.label.update:
           id: temperatures
           text:
-            format: "%.0f°F / %.0f%%"
-            args: [ 'id(fr_room_temperature).state', 'x' ]
+            format: "%.0f°F / %.0f°F"
+            args: [ 'id(outside_temperature).state', 'x' ]
 
   # ---------------------------------------------------------------------------
   # Thermostat Current Temperature
@@ -416,6 +414,25 @@ sensor:
 # =============================================================================
 
 text_sensor:
+
+  # ---------------------------------------------------------------------------
+  # Date & Time (Clock display)
+  # ---------------------------------------------------------------------------
+  # Source:  sensor.date_and_time
+  # Updates: display_time label in the top bar
+  # Expects a string containing "HH:MM" — handles both full datetime strings
+  # ("2024-01-15 14:30:00") and bare time strings ("14:30").
+  # ---------------------------------------------------------------------------
+  - platform: homeassistant
+    entity_id: sensor.date_and_time
+    id: ha_date_and_time
+    on_value:
+      - lvgl.label.update:
+          id: display_time
+          text: !lambda |-
+            if (x.length() >= 16) return x.substr(11, 5).c_str();
+            if (x.length() >= 5)  return x.c_str();
+            return "--:--";
 
   # ---------------------------------------------------------------------------
   # Family Room Thermostat HVAC Action

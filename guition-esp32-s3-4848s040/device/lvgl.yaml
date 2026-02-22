@@ -18,12 +18,12 @@ lvgl:
     widgets:
 
       # =========================================================================
-      # TEMP & HUMIDITY (Top-left)
-      # Shows: "72°F / 45%"
-      # Updated by: fr_room_temperature and fr_room_humidity sensors
+      # OUTSIDE / INSIDE TEMP (Top-left)
+      # Shows: "68°F / 72°F"  (outside / inside)
+      # Updated by: outside_temperature and inside_temperature sensors
       # =========================================================================
       - label:
-          text: "--°F / --%"
+          text: "--°F / --°F"
           id: temperatures
           styles: roboto15_style
           align: top_left
