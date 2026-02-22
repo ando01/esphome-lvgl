@@ -559,7 +559,9 @@ script:
           id: foyer_nav_btn
           state:
             checked: !lambda |-
-              return id(fo_foyer_light_state).state;
+              return id(fo_foyer_light_state).state ||
+                     id(fo_sidewalk_lights_state).state ||
+                     id(fo_landscape_lights_state).state;
 
   - id: update_dk_nav
     then:
@@ -567,15 +569,8 @@ script:
           id: deck_nav_btn
           state:
             checked: !lambda |-
-              return id(dk_flood_light_state).state;
-
-  - id: update_pt_nav
-    then:
-      - lvgl.widget.update:
-          id: patio_nav_btn
-          state:
-            checked: !lambda |-
-              return id(pt_wall_lights_state).state ||
+              return id(dk_flood_light_state).state ||
+                     id(pt_wall_lights_state).state ||
                      id(pt_xmas_lights_state).state;
 
 
@@ -823,6 +818,30 @@ binary_sensor:
               checked: !lambda return x;
         - script.execute: update_fo_nav
 
+  - platform: homeassistant
+    id: fo_sidewalk_lights_state
+    entity_id: light.outside_sidewalk_lights_node_49
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        - lvgl.widget.update:
+            id: fo_sidewalk_lights_btn
+            state:
+              checked: !lambda return x;
+        - script.execute: update_fo_nav
+
+  - platform: homeassistant
+    id: fo_landscape_lights_state
+    entity_id: switch.front_yard_landscape_lights_front_landscape_lights_relay
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        - lvgl.widget.update:
+            id: fo_landscape_lights_btn
+            state:
+              checked: !lambda return x;
+        - script.execute: update_fo_nav
+
   # ===========================================================================
   # DECK BINARY SENSORS
   # ===========================================================================
@@ -840,7 +859,7 @@ binary_sensor:
         - script.execute: update_dk_nav
 
   # ===========================================================================
-  # PATIO BINARY SENSORS
+  # DECK / PATIO BINARY SENSORS (continued)
   # ===========================================================================
 
   - platform: homeassistant
@@ -853,7 +872,7 @@ binary_sensor:
             id: pt_wall_lights_btn
             state:
               checked: !lambda return x;
-        - script.execute: update_pt_nav
+        - script.execute: update_dk_nav
 
   - platform: homeassistant
     id: pt_xmas_lights_state
@@ -865,4 +884,4 @@ binary_sensor:
             id: pt_xmas_lights_btn
             state:
               checked: !lambda return x;
-        - script.execute: update_pt_nav
+        - script.execute: update_dk_nav

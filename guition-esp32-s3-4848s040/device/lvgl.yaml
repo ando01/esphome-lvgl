@@ -169,7 +169,7 @@ lvgl:
               - lvgl.page.show: foyer_page
 
         # -----------------------------------------------------------------------
-        # BUTTON: Deck
+        # BUTTON: Deck/Patio
         # -----------------------------------------------------------------------
         - button:
             height: $button_height_single
@@ -184,29 +184,9 @@ lvgl:
                   text: $deck
               - label:
                   align: bottom_left
-                  text: "Deck"
+                  text: "Deck/Patio"
             on_click:
               - lvgl.page.show: deck_page
-
-        # -----------------------------------------------------------------------
-        # BUTTON: Patio
-        # -----------------------------------------------------------------------
-        - button:
-            height: $button_height_single
-            width: $button_width
-            checkable: false
-            id: patio_nav_btn
-            styles: control
-            widgets:
-              - label:
-                  text_font: $icon_font
-                  align: top_left
-                  text: $flower
-              - label:
-                  align: bottom_left
-                  text: "Patio"
-            on_click:
-              - lvgl.page.show: patio_page
 
     # ===========================================================================
     # FAMILY ROOM PAGE - Main Controls (3x3 grid)
@@ -1869,9 +1849,9 @@ lvgl:
     # ===========================================================================
     # FOYER PAGE
     # ===========================================================================
-    # [Light~]   [ ]        [ ]
-    # [ ]        [ ]        [ ]
-    # [← Back]   [ ]        [ ]
+    # [Light~]   [Sidewalk]  [Landscape]
+    # [ ]        [ ]         [ ]
+    # [← Back]   [ ]         [ ]
     # ~ = has brightness slider
     # ===========================================================================
     - id: foyer_page
@@ -1936,6 +1916,52 @@ lvgl:
                   data:
                     entity_id: light.foyer_light_node_13
 
+        # [1,0] Sidewalk Lights
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: true
+            id: fo_sidewalk_lights_btn
+            styles: control
+            grid_cell_column_pos: 1
+            grid_cell_row_pos: 0
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $lightbulb
+              - label:
+                  align: bottom_left
+                  text: "Sidewalk"
+            on_click:
+              - homeassistant.service:
+                  service: light.toggle
+                  data:
+                    entity_id: light.outside_sidewalk_lights_node_49
+
+        # [2,0] Front Yard Landscape Lights (switch)
+        - button:
+            height: $button_height_single
+            width: $button_width
+            checkable: true
+            id: fo_landscape_lights_btn
+            styles: control
+            grid_cell_column_pos: 2
+            grid_cell_row_pos: 0
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: top_left
+                  text: $flower
+              - label:
+                  align: bottom_left
+                  text: "Landscape"
+            on_click:
+              - homeassistant.service:
+                  service: switch.toggle
+                  data:
+                    entity_id: switch.front_yard_landscape_lights_front_landscape_lights_relay
+
         # [0,2] ← Back to Home
         - button:
             height: $button_height_single
@@ -1957,9 +1983,9 @@ lvgl:
               - lvgl.page.show: main_page
 
     # ===========================================================================
-    # DECK PAGE
+    # DECK / PATIO PAGE
     # ===========================================================================
-    # [Flood~]   [ ]        [ ]
+    # [Flood~]   [Wall~]    [Xmas]
     # [ ]        [ ]        [ ]
     # [← Back]   [ ]        [ ]
     # ~ = has brightness slider
@@ -2026,58 +2052,14 @@ lvgl:
                   data:
                     entity_id: light.deck_flood_light
 
-        # [0,2] ← Back to Home
-        - button:
-            height: $button_height_single
-            width: $button_width
-            checkable: false
-            id: dk_back_btn
-            styles: control
-            grid_cell_column_pos: 0
-            grid_cell_row_pos: 2
-            widgets:
-              - label:
-                  text_font: $icon_font
-                  align: top_left
-                  text: $chevron_left
-              - label:
-                  align: bottom_left
-                  text: "Back"
-            on_click:
-              - lvgl.page.show: main_page
-
-    # ===========================================================================
-    # PATIO PAGE
-    # ===========================================================================
-    # [Lights~]  [Xmas]     [ ]
-    # [ ]        [ ]        [ ]
-    # [← Back]   [ ]        [ ]
-    # ~ = has brightness slider
-    # ===========================================================================
-    - id: patio_page
-      layout:
-        type: grid
-        grid_columns: [fr(1), fr(1), fr(1)]
-        grid_rows: [fr(1), fr(1), fr(1)]
-      scrollbar_mode: "off"
-      width: 100%
-      bg_color: Black
-      bg_opa: cover
-      pad_top: 34
-      pad_bottom: 5
-      pad_left: 5
-      pad_right: 5
-
-      widgets:
-
-        # [0,0] Patio Wall Lights (dimmer)
+        # [1,0] Patio Wall Lights (dimmer)
         - button:
             height: $button_height_single
             width: $button_width
             checkable: true
             id: pt_wall_lights_btn
             styles: control
-            grid_cell_column_pos: 0
+            grid_cell_column_pos: 1
             grid_cell_row_pos: 0
             widgets:
               - label:
@@ -2087,7 +2069,7 @@ lvgl:
               - label:
                   align: bottom_left
                   y: -16
-                  text: "Lights"
+                  text: "Wall"
               - slider:
                   id: pt_wall_brightness_slider
                   align: bottom_mid
@@ -2116,14 +2098,14 @@ lvgl:
                   data:
                     entity_id: light.patio_wall_lights
 
-        # [1,0] Patio Christmas Lights (toggle only)
+        # [2,0] Patio Christmas Lights (toggle only)
         - button:
             height: $button_height_single
             width: $button_width
             checkable: true
             id: pt_xmas_lights_btn
             styles: control
-            grid_cell_column_pos: 1
+            grid_cell_column_pos: 2
             grid_cell_row_pos: 0
             widgets:
               - label:
@@ -2144,7 +2126,7 @@ lvgl:
             height: $button_height_single
             width: $button_width
             checkable: false
-            id: pt_back_btn
+            id: dk_back_btn
             styles: control
             grid_cell_column_pos: 0
             grid_cell_row_pos: 2
@@ -2158,3 +2140,4 @@ lvgl:
                   text: "Back"
             on_click:
               - lvgl.page.show: main_page
+
